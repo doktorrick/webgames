@@ -1,7 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 500; 
-canvas.height = 500; 
+canvas.width = 600; 
+canvas.height = 600; 
 
 const size = 8;
 const gridSize = canvas.width / 8;
@@ -9,14 +9,16 @@ const canvasHeight = canvas.height;
 const canvasWidth = canvas.width;
 let selected = null;
 
+//2-, 1+
+
 let board = [
-    [0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 0],
+    [1, 0, 1, 0, 1, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 2, 0, 2, 0, 2],
+    [0, 0, 0, 2, 0, 2, 0, 2],
     [2, 0, 2, 0, 2, 0, 2, 0]
 ];
 
@@ -56,6 +58,16 @@ function drawLabelText(row, col) {
     ctx.fillText(text, textX, textY);
 }
 
+function drawNumberCell(row, col) {
+    const text = (row + col) % 2 === 0? "": (4 * row) +  Math.ceil((row + col) / 2); 
+    const textX = col * gridSize + 2; 
+    const textY = row * gridSize + gridSize / 1.1; 
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "black";
+    ctx.fillText(text, textX, textY);
+}
+
+
 function drawCell(row, col) {
     ctx.fillStyle = (row + col) % 2 === 0 ? 'white' : 'red';
     ctx.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
@@ -67,13 +79,43 @@ function drawCellBorder(row, col) {
     ctx.strokeRect(col * gridSize, row * gridSize, gridSize, gridSize);
 }
 
-function drawhighlight() {
+function drawHighlight() {
     if(selected) {
+        if(selected.col < 0 || selected.col > 7) return;
         ctx.strokeStyle = "yellow";
         ctx.lineWidth = 4;
         ctx.strokeRect(selected.col * gridSize, selected.row * gridSize, gridSize, gridSize)
     }
 }
+
+function drawNeonHighlight() {
+    if (selected) {
+        if (selected.col < 0 || selected.col > 7) return;
+
+        const x = selected.col * gridSize;
+        const y = selected.row * gridSize;
+
+        // Neon glow effect layers
+        const glowColor = "yellow";
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = "rgba(255, 255, 0, 0.3)"; // Outer glow
+        ctx.strokeRect(x, y, gridSize, gridSize);
+
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = "rgba(255, 255, 0, 0.5)"; // Mid glow
+        ctx.strokeRect(x, y, gridSize, gridSize);
+
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = "rgba(255, 255, 0, 0.7)"; // Inner glow
+        ctx.strokeRect(x, y, gridSize, gridSize);
+
+        // Solid highlight
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = glowColor; // Solid color
+        ctx.strokeRect(x, y, gridSize, gridSize);
+    }
+}
+
 
 function drawGrid() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); 
@@ -82,31 +124,82 @@ function drawGrid() {
             drawCell(row, col);
             drawCellBorder(row, col);
             drawPiece(row, col);
+            drawNumberCell(row, col);
             drawLabelText(row, col);
         }
     }
-    drawhighlight();
+    drawNeonHighlight();
 }
 
 function getCell(offsetX, offsetY) {
-    return {
-        row: Math.floor(offsetY / gridSize),
-        col: Math.floor(offsetX / gridSize)
-    }
+    const row = Math.floor(offsetY / gridSize);
+    const col = Math.floor(offsetX / gridSize);
+    // alert(`${row}, ${col}`)
+    return { row, col }
 }
 
 function isValidMove(fromRow, fromCol, toRow, toCol) {
     const diffRow = Math.abs(toRow - fromRow);
     const diffCol = Math.abs(toCol - fromCol);
 
-    if(diffRow === 1 && diffCol === 1) {
-        return true;
+    // if((diffRow >= 1 && diffRow <= 7) &&  (diffCol >= 1 && diffCol <= 7)) {
+    //     return true;
+    // }
+
+    if(fromRow === toRow && fromCol === toCol) {
+        selected = null;
+        return false;
     }
+
+    if(board[toRow][toCol] !== 0) {
+        return false;
+    }
+
+    if(board[fromRow][fromCol] === 1) {
+        const diffRow = fromRow - toRow;
+        if(diffRow !== 1) {
+            if((toRow + toCol) % 2 === 0) {
+                return false;
+            }else {
+                if(Math.abs(diffRow) === 1 && Math.abs(diffCol) === 1) {
+                    // const diffMidRow = (fromRow - toRow) / 2;
+                    // const diffMidCol = (fromCol - toCol) / 2;
+                    // const midRow = Math.floor(fromRow + diffMidRow);
+                    // const midCol = Math.floor(fromCol + diffMidCol);
+
+                    // if(board[midRow][midCol] === 2) {
+                    //     alert("hello mid")
+                    // }
+                    
+                    return true;
+                }
+            }
+        }else{
+            return false;
+        }
+    }
+
+    if(board[fromRow][fromCol] === 2) {
+        const diffRow = fromRow - toRow;
+        if(diffRow !== -1) {
+            if((toRow + toCol) % 2 === 0) {
+                return false;
+            }else {
+                if(Math.abs(diffRow) === 1 && Math.abs(diffCol) === 1) {
+                    return true;
+                }
+            }
+        }else{
+            return false;
+        }
+    }
+    return false;
 }
 
 function movePiece(fromRow, fromCol, toRow, toCol) {
     board[toRow][toCol] = board[fromRow][fromCol];
     board[fromRow][fromCol] = 0;
+    return;
 }
 
 function handleClick(event) {
@@ -122,10 +215,12 @@ function handleClick(event) {
         const isValid = isValidMove(selected.row, selected.col, row, col);
         if(isValid) {
             movePiece(selected.row, selected.col, row, col);
+            selected = null;
         }
-        selected = null;
     } else {
-        selected = { row, col }
+        if(board[row][col] === 1 || board[row][col] === 2) {
+            selected = { row, col }
+        } 
     }
 
     drawGrid();
