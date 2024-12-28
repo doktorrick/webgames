@@ -8,17 +8,18 @@ const gridSize = canvas.width / 8;
 const canvasHeight = canvas.height;
 const canvasWidth = canvas.width;
 let selected = null;
+let waitForRemove = null;
 
 //2-, 1+
 
 let board = [
-    [0, 1, 0, 1, 0, 1, 0, 0],
-    [1, 0, 1, 0, 1, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 2, 0, 2, 0, 2],
+    [0, 2, 0, 2, 0, 2, 0, 2],
     [2, 0, 2, 0, 2, 0, 2, 0]
 ];
 
@@ -44,6 +45,17 @@ function drawPiece(row, col) {
             Math.PI * 2
         );
         ctx.fillStyle = "green";
+        ctx.fill();
+    } else if (board[row][col] === 3) { 
+        ctx.beginPath();
+        ctx.arc(
+            col * gridSize + gridSize / 2,
+            row * gridSize + gridSize / 2,
+            gridSize / 3,
+            0,
+            Math.PI * 2
+        );
+        ctx.fillStyle = "gold";
         ctx.fill();
     }
 }
@@ -161,16 +173,20 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
             if((toRow + toCol) % 2 === 0) {
                 return false;
             }else {
-                if(Math.abs(diffRow) === 1 && Math.abs(diffCol) === 1) {
-                    // const diffMidRow = (fromRow - toRow) / 2;
-                    // const diffMidCol = (fromCol - toCol) / 2;
-                    // const midRow = Math.floor(fromRow + diffMidRow);
-                    // const midCol = Math.floor(fromCol + diffMidCol);
+                const diffRowAbs = Math.abs(diffRow);
+                const diffColAbs = Math.abs(diffCol);
 
-                    // if(board[midRow][midCol] === 2) {
-                    //     alert("hello mid")
-                    // }
-                    
+                if(Math.abs(diffRow) === 1 && Math.abs(diffCol) === 1) {
+                    return true;
+                }
+
+                if(diffRowAbs === 2 && diffColAbs === 2) {
+                    const midRow = fromRow + diffRowAbs / 2;
+                    const midCol = fromCol + diffColAbs / 2;
+                    //remove
+                    alert(`${midRow}, ${midCol}`);
+                    // board[midRow][midCol] = 0;
+
                     return true;
                 }
             }
@@ -185,9 +201,53 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
             if((toRow + toCol) % 2 === 0) {
                 return false;
             }else {
-                if(Math.abs(diffRow) === 1 && Math.abs(diffCol) === 1) {
+                const diffRowAbs = Math.abs(diffRow);
+                const diffColAbs = Math.abs(diffCol);
+
+                if(diffRowAbs === 1 && diffColAbs === 1) {
                     return true;
                 }
+
+                if(diffRowAbs === 2 && diffColAbs === 2) {
+                    let midRow = fromRow - Math.abs(fromRow - toRow) / 2;
+                    let midCol = null;
+
+                    if(fromCol > toCol) {
+                        midCol = fromCol - Math.abs(fromCol - toCol) / 2;
+                    }
+                    if(fromCol < toCol) {
+                        midCol = fromCol + Math.abs(fromCol - toCol) / 2;
+                    }
+                    if(board[midRow][midCol] === 1) {
+                        waitForRemove = { row: midRow, col: midCol }
+                        return true;
+                    }
+                    return false;
+                }
+
+                if(diffRowAbs > 2 && diffColAbs > 2) {
+                    const diffRow = Math.abs(fromRow - toRow);
+                    const diffCol = Math.abs(fromCol - toCol);
+                    for(var i=1; i < diffRow; i++) {
+                        if(fromCol > toCol) {
+                            console.log(fromRow - i + " " + (fromCol - i));
+                            if(board[fromRow - i][fromCol - i] !== 0 && board[fromRow - i][fromCol - i] !== 2) {
+                                console.log(`found: ${fromRow - i}, ${fromCol - i}`);
+                                waitForRemove = { row: fromRow - i, col: fromCol - i }
+                                return true;
+                            }
+                        }else{
+                            console.log(fromRow - i + " " + (fromCol + i));
+                            if(board[fromRow - i][fromCol + i] !== 0 && board[fromRow - i][fromCol - i] !== 2) {
+                                console.log(`found: ${fromRow - i}, ${fromCol + i}`)
+                                waitForRemove = { row: fromRow - i, col: fromCol + i }
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+
             }
         }else{
             return false;
@@ -199,6 +259,14 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
 function movePiece(fromRow, fromCol, toRow, toCol) {
     board[toRow][toCol] = board[fromRow][fromCol];
     board[fromRow][fromCol] = 0;
+    return;
+}
+
+function removePiece() {
+    if(waitForRemove !== null) {
+        board[waitForRemove.row][waitForRemove.col] = 0;
+        waitForRemove = null;
+    }
     return;
 }
 
@@ -215,6 +283,7 @@ function handleClick(event) {
         const isValid = isValidMove(selected.row, selected.col, row, col);
         if(isValid) {
             movePiece(selected.row, selected.col, row, col);
+            removePiece();
             selected = null;
         }
     } else {
