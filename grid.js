@@ -10,10 +10,18 @@ const canvasWidth = canvas.width;
 let selected = null;
 let waitForRemove = null;
 
+const imgWhite = new Image();
+const imgBlack = new Image();
+imgWhite.src = 'wb.png';
+imgBlack.src = 'wb.png';
 //2-, 1+
 
+imgWhite.onload = () => {
+    console.log("White piece image loaded successfully!");
+};
+
 let board = [
-    [0, 1, 0, 1, 0, 1, 0, 1],
+    [0, 1, 0, 1, 0, 1, 0, 3],
     [1, 0, 1, 0, 1, 0, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -24,6 +32,10 @@ let board = [
 ];
 
 function drawPiece(row, col) {
+    const x = col * gridSize + gridSize / 2;
+    const y = row * gridSize + gridSize / 2;
+    const pieceSize = gridSize * 0.9; 
+
     if (board[row][col] === 1) { 
         ctx.beginPath();
         ctx.arc(
@@ -47,16 +59,10 @@ function drawPiece(row, col) {
         ctx.fillStyle = "green";
         ctx.fill();
     } else if (board[row][col] === 3) { 
-        ctx.beginPath();
-        ctx.arc(
-            col * gridSize + gridSize / 2,
-            row * gridSize + gridSize / 2,
-            gridSize / 3,
-            0,
-            Math.PI * 2
-        );
-        ctx.fillStyle = "gold";
-        ctx.fill();
+        imgWhite.onload = () => {
+            ctx.drawImage(imgWhite, x - pieceSize / 2, y - pieceSize / 2, pieceSize, pieceSize);
+        };
+        imgWhite.src = 'wb.png';
     }
 }
 
