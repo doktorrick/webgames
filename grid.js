@@ -12,16 +12,18 @@ let waitForRemove = null;
 
 const imgWhite = new Image();
 const imgBlack = new Image();
+const imgWhite2 = new Image();
+const imgBlack2 = new Image();
+
 imgWhite.src = 'wb.png';
-imgBlack.src = 'wb.png';
+imgBlack.src = 'bb.png';
+
+imgWhite2.src = 'wh.png';
+imgBlack2.src = 'bh.png';
 //2-, 1+
 
-imgWhite.onload = () => {
-    console.log("White piece image loaded successfully!");
-};
-
 let board = [
-    [0, 1, 0, 1, 0, 1, 0, 3],
+    [0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -31,38 +33,66 @@ let board = [
     [2, 0, 2, 0, 2, 0, 2, 0]
 ];
 
-function drawPiece(row, col) {
-    const x = col * gridSize + gridSize / 2;
-    const y = row * gridSize + gridSize / 2;
-    const pieceSize = gridSize * 0.9; 
+function drawWhiteBack(row, col, pieceSize) {
+    ctx.drawImage(imgWhite, col - pieceSize / 2, row - pieceSize / 2, pieceSize, pieceSize);
+}
+function drawRedBack(row, col, pieceSize) {
+    ctx.drawImage(imgBlack, col - pieceSize / 2, row - pieceSize / 2, pieceSize, pieceSize);
+}
 
+function drawBlueBack(row, col) {
+    ctx.beginPath();
+    ctx.arc(
+        col * gridSize + gridSize / 2, 
+        row * gridSize + gridSize / 2, 
+        gridSize / 3, // Radius
+        0,
+        Math.PI * 2
+    );
+    ctx.fillStyle = "blue";
+    ctx.fill();
+}
+
+function drawGreenBack(row, col) {
+    ctx.beginPath();
+    ctx.arc(
+        col * gridSize + gridSize / 2,
+        row * gridSize + gridSize / 2,
+        gridSize / 3,
+        0,
+        Math.PI * 2
+    );
+    ctx.fillStyle = "green";
+    ctx.fill();
+}
+
+function isKing(row, col) {
+    return true;
+}
+
+function drawPiece(row, col) {
     if (board[row][col] === 1) { 
-        ctx.beginPath();
-        ctx.arc(
-            col * gridSize + gridSize / 2, 
-            row * gridSize + gridSize / 2, 
-            gridSize / 3, // Radius
-            0,
-            Math.PI * 2
-        );
-        ctx.fillStyle = "blue";
-        ctx.fill();
+        const x = col * gridSize + gridSize / 2;
+        const y = row * gridSize + gridSize / 2;
+        const pieceSize = gridSize * 0.9; 
+        drawRedBack(y, x, pieceSize);
     } else if (board[row][col] === 2) { 
-        ctx.beginPath();
-        ctx.arc(
-            col * gridSize + gridSize / 2,
-            row * gridSize + gridSize / 2,
-            gridSize / 3,
-            0,
-            Math.PI * 2
-        );
-        ctx.fillStyle = "green";
-        ctx.fill();
+        const x = col * gridSize + gridSize / 2;
+        const y = row * gridSize + gridSize / 2;
+        const pieceSize = gridSize * 0.9; 
+        drawWhiteBack(y, x, pieceSize);
     } else if (board[row][col] === 3) { 
-        imgWhite.onload = () => {
-            ctx.drawImage(imgWhite, x - pieceSize / 2, y - pieceSize / 2, pieceSize, pieceSize);
-        };
-        imgWhite.src = 'wb.png';
+        const x = col * gridSize + gridSize / 2;
+        const y = row * gridSize + gridSize / 2;
+        const pieceSize = gridSize * 0.9; 
+        drawWhiteBack(y, x, pieceSize);
+        ctx.drawImage(imgBlack2, x - pieceSize / 2, y - pieceSize / 2, pieceSize, pieceSize);
+    } else if (board[row][col] === 4) { 
+        const x = col * gridSize + gridSize / 2;
+        const y = row * gridSize + gridSize / 2;
+        const pieceSize = gridSize * 0.9; 
+        drawWhiteBack(y, x, pieceSize);
+        ctx.drawImage(imgWhite2, x - pieceSize / 2, y - pieceSize / 2, pieceSize, pieceSize);
     }
 }
 
@@ -152,7 +182,6 @@ function drawGrid() {
 function getCell(offsetX, offsetY) {
     const row = Math.floor(offsetY / gridSize);
     const col = Math.floor(offsetX / gridSize);
-    // alert(`${row}, ${col}`)
     return { row, col }
 }
 
@@ -173,6 +202,7 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
         return false;
     }
 
+    //player 1
     if(board[fromRow][fromCol] === 1) {
         const diffRow = fromRow - toRow;
         if(diffRow !== 1) {
@@ -201,6 +231,7 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
         }
     }
 
+    //player 2
     if(board[fromRow][fromCol] === 2) {
         const diffRow = fromRow - toRow;
         if(diffRow !== -1) {
@@ -259,11 +290,18 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
             return false;
         }
     }
+
     return false;
 }
 
 function movePiece(fromRow, fromCol, toRow, toCol) {
     board[toRow][toCol] = board[fromRow][fromCol];
+    if(board[toRow][toCol] === 1 && toRow === 7) {
+        board[toRow][toCol] = 3;
+    }
+    if(board[toRow][toCol] === 2 && toRow === 0) {
+        board[toRow][toCol] = 4;
+    }
     board[fromRow][fromCol] = 0;
     return;
 }
@@ -298,9 +336,15 @@ function handleClick(event) {
         } 
     }
 
-    drawGrid();
+    // drawGrid();
 }
 
-drawGrid();
+
+function playGame() {
+    drawGrid();    
+    requestAnimationFrame(playGame)
+}
 
 document.addEventListener("click", handleClick)
+
+playGame();
