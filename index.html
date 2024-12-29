@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      canvas {
+        border: #333 10px solid;
+      }
+
+      body {
+        padding: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="550px" height="350px"></canvas>
+
+    <script>
+      var canvas = document.querySelector("#myCanvas");
+      var context = canvas.getContext("2d");
+
+      var myImage = new Image();
+      //   myImage.src = "sprites_blue.png";
+      myImage.src = "zombieman/Walk.png";
+      myImage.addEventListener("load", loadImage, false);
+
+      function loadImage(e) {
+        animate();
+      }
+
+      var shift = 0;
+      //   var frameWidth = 300;
+      //   var frameHeight = 300;
+      //   var totalFrames = 24;
+      //   var currentFrame = 0;
+      var frameWidth = 96;
+      var frameHeight = 96;
+      var totalFrames = 8;
+      var currentFrame = 0;
+      var frameInterval = 100;
+      var lastFrameTime = 0;
+
+      function animate(timestamp) {
+        if (!lastFrameTime) lastFrameTime = timestamp;
+
+        var timeSinceLastFrame = timestamp - lastFrameTime;
+        console.log("Time Since Last Frame:", timeSinceLastFrame);
+
+        if (timeSinceLastFrame >= frameInterval) {
+          context.clearRect(120, 25, 300, 300);
+          // drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+          context.drawImage(
+            myImage,
+            shift,
+            0,
+            frameWidth,
+            frameHeight,
+            120,
+            25,
+            frameWidth,
+            frameHeight
+          );
+
+          shift += frameWidth + 1;
+
+          if (currentFrame == totalFrames) {
+            shift = 0;
+            currentFrame = 0;
+          }
+
+          currentFrame++;
+          lastFrameTime = timestamp;
+
+        }
+
+        requestAnimationFrame(animate);
+      }
+    </script>
+  </body>
+</html>
