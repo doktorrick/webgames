@@ -29,8 +29,8 @@ let board = [
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 2, 0, 2, 0, 2, 0, 2],
-  [2, 0, 2, 0, 2, 0, 2, 0],
+  [0, 2, 0, 2, 0, 0, 0, 0],
+  [2, 0, 2, 0, 2, 0, 3, 0],
 ];
 
 function drawWhiteBack(row, col, pieceSize) {
@@ -42,6 +42,7 @@ function drawWhiteBack(row, col, pieceSize) {
     pieceSize
   );
 }
+
 function drawRedBack(row, col, pieceSize) {
   ctx.drawImage(
     imgBlack,
@@ -52,7 +53,265 @@ function drawRedBack(row, col, pieceSize) {
   );
 }
 
+function drawBlueKing(row, col) {
+  const x = col * gridSize + gridSize / 2;
+  const y = row * gridSize + gridSize / 2;
+  const radius = gridSize / 3; // Radius of the circle
+
+  // Draw shadow
+  ctx.beginPath();
+  ctx.arc(x + 3, y + 3, radius, 0, Math.PI * 2); // Offset for shadow
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; // Semi-transparent black
+  ctx.fill();
+
+  // Draw blue circle
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = "blue";
+  ctx.fill();
+
+  // Add border
+  ctx.lineWidth = 4; // Thickness of the border
+  ctx.strokeStyle = "darkblue"; // Border color
+  ctx.stroke();
+
+  // Add gradient for more depth
+  const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
+  gradient.addColorStop(0, "lightblue"); // Highlight color
+  gradient.addColorStop(1, "blue"); // Main color
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Draw crown
+  const crownHeight = radius * 0.7; // Height of the crown
+  const crownWidth = radius * 1.2; // Width of the crown
+  const crownX = x - crownWidth / 2; // Top-left x of crown
+  const crownY = y - crownHeight / 2; // Top of the circle to place crown
+
+  ctx.beginPath();
+  ctx.moveTo(crownX, crownY + crownHeight); // Bottom left of crown
+  ctx.lineTo(crownX + crownWidth * 0.2, crownY); // First peak
+  ctx.lineTo(crownX + crownWidth * 0.4, crownY + crownHeight * 0.5); // First valley
+  ctx.lineTo(crownX + crownWidth * 0.6, crownY); // Second peak
+  ctx.lineTo(crownX + crownWidth * 0.8, crownY + crownHeight * 0.5); // Second valley
+  ctx.lineTo(crownX + crownWidth, crownY); // Third peak
+  ctx.lineTo(crownX + crownWidth, crownY + crownHeight); // Bottom right of crown
+  ctx.closePath();
+
+  // Fill crown with golden gradient
+  const crownGradient = ctx.createLinearGradient(
+    crownX,
+    crownY,
+    crownX,
+    crownY + crownHeight
+  );
+  crownGradient.addColorStop(0, "gold");
+  crownGradient.addColorStop(1, "darkgoldenrod");
+  ctx.fillStyle = crownGradient;
+  ctx.fill();
+
+  // Add crown border
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "brown";
+  ctx.stroke();
+}
+
+// function drawPawn(row, col, color, isKing = false) {
+//   const x = col * gridSize + gridSize / 2;
+//   const y = row * gridSize + gridSize / 2;
+//   const radius = gridSize / 3; // Radius of the circle
+
+//   // Draw shadow for 3D effect
+//   ctx.beginPath();
+//   ctx.ellipse(x + 3, y + 3, radius * 1.1, radius * 0.9, Math.PI / 4, 0, Math.PI * 2);
+//   ctx.fillStyle = "rgba(0, 0, 0, 0.3)"; // Shadow color
+//   ctx.fill();
+
+//   // Radial gradient for the main pawn body
+//   const gradient = ctx.createRadialGradient(x, y - radius / 4, radius / 6, x, y, radius);
+//   if (color === "white") {
+//     gradient.addColorStop(0, "#f9f9f9"); // Highlight
+//     gradient.addColorStop(0.4, "#e6e6e6"); // Main body
+//     gradient.addColorStop(1, "#bfbfbf"); // Darker edge
+//   } else {
+//     gradient.addColorStop(0, "#ffaaaa"); // Highlight for red pawn
+//     gradient.addColorStop(0.4, color); // Main body
+//     gradient.addColorStop(1, "#880000"); // Darker edge
+//   }
+
+//   // Draw main pawn circle
+//   ctx.beginPath();
+//   ctx.arc(x, y, radius, 0, Math.PI * 2);
+//   ctx.fillStyle = gradient; // Apply gradient
+//   ctx.fill();
+
+//   // Add border for definition
+//   ctx.lineWidth = 3;
+//   ctx.strokeStyle = color === "white" ? "#7a7a7a" : "#4a0000"; // Gray border for white, darker for others
+//   ctx.stroke();
+
+//   // Add a reflective highlight for the white pawn
+//   if (color === "white") {
+//     ctx.beginPath();
+//     ctx.arc(x - radius / 3, y - radius / 3, radius / 4, 0, Math.PI * 2);
+//     ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // Bright reflection
+//     ctx.fill();
+//   }
+
+//   // Draw "👑" if it's a king pawn
+//   if (isKing) {
+//     ctx.font = `${radius}px sans-serif`;
+//     ctx.fillStyle = "gold"; // Golden crown for kings
+//     ctx.textAlign = "center";
+//     ctx.textBaseline = "middle";
+//     ctx.fillText("👑", x, y); // Position slightly above center
+//   }
+// }
+
+function drawPawn(row, col, color, isKing = false) {
+  const x = col * gridSize + gridSize / 2;
+  const y = row * gridSize + gridSize / 2;
+  const radius = gridSize / 3; // Radius of the circle
+
+  // Draw shadow
+  ctx.beginPath();
+  ctx.ellipse(x + 3, y + 3, radius * 1.1, radius * 0.9, Math.PI / 4, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; // Subtle shadow
+  ctx.fill();
+
+  let gradient = null;
+  let stokeLine = null;
+  
+  if(color === "black") {
+    gradient = ctx.createRadialGradient(x, y - radius / 4, radius / 6, x, y, radius);
+    gradient.addColorStop(0, "rgba(50, 50, 50, 0.8)"); 
+    gradient.addColorStop(0.5, "rgba(30, 30, 30, 0.6)"); 
+    gradient.addColorStop(1, "rgba(10, 10, 10, 0.4)");
+    stokeLine = "rgba(9, 7, 7, 0.3)";
+
+  }else{
+    gradient = ctx.createRadialGradient(x, y - radius / 4, radius / 6, x, y, radius);
+    gradient.addColorStop(0, "rgba(255, 255, 255, 0.8)"); 
+    gradient.addColorStop(0.5, "rgba(200, 200, 255, 0.4)"); 
+    gradient.addColorStop(1, "rgba(150, 150, 200, 0.2)"); 
+    stokeLine = "rgba(214, 205, 205, 0.3)";
+  }
+
+
+  // Draw main glass pawn circle
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = gradient; // Apply the glass-like gradient
+  ctx.fill();
+
+  // Add an outer glow effect for the glass
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = stokeLine; // Soft white glow
+  ctx.stroke();
+
+  // Add inner reflections
+  ctx.beginPath();
+  ctx.arc(x - radius / 4, y - radius / 4, radius / 3, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)"; // Inner highlight
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(x + radius / 5, y + radius / 5, radius / 5, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.2)"; // Second reflection
+  ctx.fill();
+
+  // Draw "👑" for king pawn
+  if (isKing) {
+    ctx.font = `${radius}px sans-serif`;
+    ctx.fillStyle = "gold"; // Golden crown
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("👑", x, y); // Position slightly above center
+  }
+}
+
 function drawBlueBack(row, col) {
+  const x = col * gridSize + gridSize / 2;
+  const y = row * gridSize + gridSize / 2;
+  const radius = gridSize / 3; // Radius of the circle
+
+  // Draw shadow
+  ctx.beginPath();
+  ctx.arc(x + 3, y + 3, radius, 0, Math.PI * 2); // Offset for shadow
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; // Semi-transparent black
+  ctx.fill();
+
+  // Draw blue circle
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = "blue";
+  ctx.fill();
+
+  // Add border
+  ctx.lineWidth = 4; // Thickness of the border
+  ctx.strokeStyle = "darkblue"; // Border color
+  ctx.stroke();
+
+  // Add gradient for more depth
+  const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
+  gradient.addColorStop(0, "lightblue"); // Highlight color
+  gradient.addColorStop(1, "blue"); // Main color
+  ctx.fillStyle = gradient;
+  ctx.fill();
+}
+
+// function drawBlueBack(row, col) {
+//   const x = col * gridSize + gridSize / 2;
+//   const y = row * gridSize + gridSize / 2;
+//   const outerRadius = gridSize / 3; // Outer circle radius
+//   const innerRadius = gridSize / 3; // Inner circle radius
+
+//   // Draw shadow
+//   ctx.beginPath();
+//   ctx.arc(x + 5, y + 5, outerRadius, 0, Math.PI * 2); // Offset for shadow
+//   ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+//   ctx.fill();
+
+//   // Draw outer circle with gradient
+//   const outerGradient = ctx.createRadialGradient(x, y, outerRadius * 0.1, x, y, outerRadius);
+//   outerGradient.addColorStop(0, "#d1d1d1"); // Light gray
+//   outerGradient.addColorStop(1, "#6e6e6e"); // Dark gray
+
+//   ctx.beginPath();
+//   ctx.arc(x, y, outerRadius, 0, Math.PI * 2);
+//   ctx.fillStyle = outerGradient;
+//   ctx.fill();
+
+//   // Draw inner circle with gradient
+//   const innerGradient = ctx.createRadialGradient(x, y, innerRadius * 0.1, x, y, innerRadius);
+//   innerGradient.addColorStop(0, "#ffffff"); // White (highlight)
+//   innerGradient.addColorStop(1, "#a1a1a1"); // Medium gray
+
+//   ctx.beginPath();
+//   ctx.arc(x, y, innerRadius, 0, Math.PI * 2);
+//   ctx.fillStyle = innerGradient;
+//   ctx.fill();
+
+//   // Add border (optional)
+//   ctx.lineWidth = 2;
+//   ctx.strokeStyle = "#4d4d4d"; // Darker gray for the border
+//   ctx.stroke();
+// }
+
+function drawPieceFrontk(row, col, color) {
+  ctx.beginPath();
+  ctx.arc(
+    col * gridSize + gridSize / 2,
+    row * gridSize + gridSize / 2,
+    gridSize / 3,
+    0,
+    Math.PI * 2
+  );
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+function drawPieceBack(row, col, color) {
   ctx.beginPath();
   ctx.arc(
     col * gridSize + gridSize / 2,
@@ -61,7 +320,7 @@ function drawBlueBack(row, col) {
     0,
     Math.PI * 2
   );
-  ctx.fillStyle = "blue";
+  ctx.fillStyle = color;
   ctx.fill();
 }
 
@@ -78,44 +337,53 @@ function drawGreenBack(row, col) {
   ctx.fill();
 }
 
-function isKing(row, col) {
-  return true;
-}
-
 function drawPiece(row, col) {
   const x = col * gridSize + gridSize / 2;
   const y = row * gridSize + gridSize / 2;
   const pieceSize = gridSize * 0.9;
-  if (board[row][col] === 1) {
-    drawRedBack(y, x, pieceSize);
-  } else if (board[row][col] === 2) {
-    drawWhiteBack(y, x, pieceSize);
-  } else if (board[row][col] === 3) {
-    drawWhiteBack(y, x, pieceSize);
-    ctx.drawImage(
-      imgBlack2,
-      x - pieceSize / 2,
-      y - pieceSize / 2,
-      pieceSize,
-      pieceSize
-    );
-  } else if (board[row][col] === 4) {
-    drawWhiteBack(y, x, pieceSize);
-    ctx.drawImage(
-      imgWhite2,
-      x - pieceSize / 2,
-      y - pieceSize / 2,
-      pieceSize,
-      pieceSize
-    );
+
+  switch (board[row][col]) {
+    case 1:
+      // drawRedBack(y, x, pieceSize);
+      drawPawn(row, col, "black");
+      break;
+    case 2:
+      // drawWhiteBack(y, x, pieceSize);
+      // drawBlueBack(row, col);
+      drawPawn(row, col, "white");
+      break;
+    case 3:
+      // ctx.drawImage(
+      //   imgBlack2,
+      //   x - pieceSize / 2,
+      //   y - pieceSize / 2,
+      //   pieceSize,
+      //   pieceSize
+      // );
+      drawPawn(row, col, "black", true);
+
+      break;
+    case 4:
+      // ctx.drawImage(
+      //   imgWhite2,
+      //   x - pieceSize / 2,
+      //   y - pieceSize / 2,
+      //   pieceSize,
+      //   pieceSize
+      // );
+      drawPawn(row, col, "white", true);
+
+      break;
+    default:
+      break;
   }
 }
 
-function drawLabelText(row, col) {
+function drawCoord(row, col) {
   const text = `(${row}, ${col})`;
   const textWidth = ctx.measureText(text).width;
-  const textX = col * gridSize + (gridSize - textWidth) / 2;
-  const textY = row * gridSize + (gridSize + 10) / 2;
+  const textX = col * gridSize + gridSize / 2;
+  const textY = row * gridSize + gridSize / 2;
   ctx.font = "12px Arial";
   ctx.fillStyle = "black";
   ctx.fillText(text, textX, textY);
@@ -124,7 +392,7 @@ function drawLabelText(row, col) {
 function drawNumberCell(row, col) {
   const text =
     (row + col) % 2 === 0 ? "" : 4 * row + Math.ceil((row + col) / 2);
-  const textX = col * gridSize + 2;
+  const textX = col * gridSize + 10;
   const textY = row * gridSize + gridSize / 1.1;
   ctx.font = "12px Arial";
   ctx.fillStyle = "black";
@@ -184,7 +452,7 @@ function drawNeonHighlight() {
   }
 }
 
-function drawGrid() {
+function drawBoard() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
@@ -192,7 +460,7 @@ function drawGrid() {
       drawCellBorder(row, col);
       drawPiece(row, col);
       drawNumberCell(row, col);
-      drawLabelText(row, col);
+      drawCoord(row, col);
     }
   }
   drawNeonHighlight();
@@ -205,8 +473,10 @@ function getCell(offsetX, offsetY) {
 }
 
 function gameRules(fromRow, fromCol, toRow, toCol) {
-    const diffRow = Math.abs(toRow - fromRow);
-    const diffCol = Math.abs(toCol - fromCol);
+  //check waitForRemove
+  if (waitForRemove) {
+    return false;
+  }
 
   //select the same piece
   if (fromRow === toRow && fromCol === toCol) {
@@ -220,15 +490,12 @@ function gameRules(fromRow, fromCol, toRow, toCol) {
   }
 
   //normal pieces can't move left or right backwakd
-  if(board[fromRow][fromCol] === 1 || board[fromRow][fromCol] === 2) {
-    if(board[fromRow][fromCol] === 1 && fromRow > toRow) {
-        return false;
+  if (board[fromRow][fromCol] === 1 || board[fromRow][fromCol] === 2) {
+    if (board[fromRow][fromCol] === 1 && fromRow > toRow) {
+      return false;
     }
-    if(board[fromRow][fromCol] === 2 && fromRow < toRow) {
-        return false;
-    }
-    if (diffRow === 1 && board[toRow][toCol] === 0) {
-        return true;
+    if (board[fromRow][fromCol] === 2 && fromRow < toRow) {
+      return false;
     }
   }
 
@@ -246,174 +513,222 @@ function gameRules(fromRow, fromCol, toRow, toCol) {
 }
 
 function displayStatus(fromRow, toRow) {
-    const diffRow = fromRow - toRow;
-    const elementP = document.createElement("p");
-    elementP.innerHTML = diffRow;
-    const info = document.getElementById("info");
-    info.innerText = null;
-    info.appendChild(elementP);
+  const diffRow = fromRow - toRow;
+  const elementP = document.createElement("p");
+  elementP.innerHTML = diffRow;
+  const info = document.getElementById("info");
+  info.innerText = null;
+  info.appendChild(elementP);
 }
 
-function hasConsecutiveNumbers(arr, num) {
-  for (let i = 0; i < arr.length - 1; i++) {
-    if (arr[i] === num && arr[i + 1] === num) {
-      return true;
-    }
+function findMidRowDynamic(fromRow, toRow) {
+  if (fromRow < toRow) {
+    const result = fromRow + Math.abs(fromRow - toRow) / 2;
+    return result;
   }
-  return false;
+  if (fromRow > toRow) {
+    const result = Math.abs(fromRow - Math.abs(fromRow - toRow) / 2);
+    return result;
+  }
 }
 
-function hasRepeats(arr, num) {
-  let count = 0;
-  for (const val of arr) {
-    if (val === num) {
-      count++;
-      if (count > 1) {
-        return true;
-      }
-    }
+function findMidColDynamic(fromCol, toCol) {
+  if (fromCol < toCol) {
+    const result = Math.abs(fromCol + Math.abs(fromCol - toCol) / 2);
+    return result;
   }
-  return false;
+  if (fromCol > toCol) {
+    const result = Math.abs(fromCol - Math.abs(fromCol - toCol) / 2);
+    return result;
+  }
+}
+
+function findCaptureRowDynamic(fromRow, toRow) {
+  if (fromRow < toRow) {
+    const result = fromRow + Math.abs(fromRow - toRow) / 2;
+    return result;
+  }
+  if (fromRow > toRow) {
+    const result = Math.abs(fromRow - Math.abs(fromRow - toRow) / 2);
+    return result;
+  }
+}
+
+function findCaptureColDynamic(fromCol, toCol) {
+  if (fromCol < toCol) {
+    const result = toCol - 1;
+    return result;
+  }
+  if (fromCol > toCol) {
+    const result = toCol + 1;
+    return result;
+  }
 }
 
 function isValidMove(fromRow, fromCol, toRow, toCol) {
   const diffRow = Math.abs(toRow - fromRow);
-  const diffCol = Math.abs(toCol - fromCol);
-  const isInRules = gameRules(fromRow, fromCol, toRow, toCol);
+  const dPieceMove = diffRow;
 
+  const isInRules = gameRules(fromRow, fromCol, toRow, toCol);
   if (!isInRules) return false;
 
   if (board[fromRow][fromCol] === 1 || board[fromRow][fromCol] === 2) {
-    displayStatus(fromRow, toRow)
-    if (diffRow === 2 && diffCol === 2) {
-      let midRow = null;
-      let midCol = null;
+    switch (dPieceMove) {
+      case 1:
+        if (board[toRow][toCol] === 0) {
+          return true;
+        }
+        break;
+      case 2:
+        const midRowDynamic = findMidRowDynamic(fromRow, toRow);
+        const midColDynamic = findMidColDynamic(fromCol, toCol);
 
-      if(fromRow > toRow) {
-        midRow = fromRow - Math.abs(fromRow - toRow) / 2;
-      } 
-
-      if(fromRow < toRow) {
-        midRow = fromRow - Math.abs(fromRow + toRow) / 2;
-      }
-
-      if (fromCol > toCol) {
-        midCol = fromCol - Math.abs(fromCol - toCol) / 2;
-      }
-
-      if (fromCol < toCol) {
-        midCol = fromCol + Math.abs(fromCol - toCol) / 2;
-      }
-
-      if (board[midRow][midCol] !== board[fromRow][fromCol]) {
-        waitForRemove = { row: midRow, col: midCol };
-        console.log(waitForRemove)
-        return true;
-      }
-      return false;
+        if (
+          board[midRowDynamic][midColDynamic] !== board[fromRow][fromCol] &&
+          board[midRowDynamic][midColDynamic] !== 0 &&
+          board[midRowDynamic][midColDynamic] !== board[fromRow][fromCol] + 2
+        ) {
+          waitForRemove = { row: midRowDynamic, col: midColDynamic };
+          return true;
+        }
+        return false;
+      default:
+        return false;
     }
   }
 
-  if (board[fromRow][fromCol] === 4) {
+  //King state
+  if (board[fromRow][fromCol] === 3 || board[fromRow][fromCol] === 4) {
     const targetRow = fromRow > toRow ? toRow + 1 : toRow - 1;
     const targetCol = fromCol > toCol ? toCol + 1 : toCol - 1;
-
-    const info = document.getElementById("info");
     const diffRow = Math.abs(fromRow - toRow);
     const diffCol = Math.abs(fromCol - toCol);
 
-    if (diffRow > 0) {
-      const elementP = document.createElement("p");
-      const mod2 = (toRow + toCol) % 2;
-      elementP.textContent = `(${targetRow},${targetCol}) - mod ${mod2}`;
-      info.appendChild(elementP);
-
-      let checkValid = true;
-      let checkRow = [];
-
-      //left-top scan (-, -)
-      if (fromCol > toCol && fromRow > toRow) {
-        console.log("left top");
-        for (let index = 1; index < diffCol + 1; index++) {
-          const row = fromRow - index;
-          const col = fromCol - index;
-          const boardLoop = board[row][col];
-          checkRow.push(board[row][col]);
-          if (boardLoop !== 0) {
-            console.log(`valid false`);
-            checkValid = false;
-          }
+    switch (dPieceMove) {
+      case 1:
+        if (board[toRow][toCol] === 0) {
+          return true;
         }
-      }
-
-      //right-top scan (-, +)
-      if (fromCol < toCol && fromRow > toRow) {
-        console.log(`right-top`);
-        for (let index = 1; index < diffCol + 1; index++) {
-          const row = fromRow - index;
-          const col = fromCol + index;
-          const boardLoop = board[row][col];
-          checkRow.push(board[row][col]);
-          if (boardLoop !== 0) {
-            console.log(`valid false`);
-            checkValid = false;
-          }
+        break;
+      case 2:
+        if (
+          board[targetRow][targetCol] !== board[fromRow][fromCol] &&
+          board[targetRow][targetCol] !== 0 &&
+          board[targetRow][targetCol] !== board[fromRow][fromCol] - 2 &&
+          board[toRow][toCol] === 0
+        ) {
+          waitForRemove = { row: targetRow, col: targetCol };
+          return true;
         }
-      }
-
-      //right-bottom scan (+, +)
-      if (fromCol < toCol && fromRow < toRow) {
-        console.log(`right-bottom`);
-        for (let index = 1; index < diffCol + 1; index++) {
-          const row = fromRow + index;
-          const col = fromCol + index;
-          const boardLoop = board[row][col];
-          checkRow.push(board[row][col]);
-          if (boardLoop !== 0) {
-            console.log(`valid false`);
-            checkValid = false;
-          }
+        if(board[targetRow][targetCol] === 0 && board[toRow][toCol] === 0) {
+          return true;
         }
-      }
-
-      //left-bottom scan (+, -)
-      if (fromCol > toCol && fromRow < toRow) {
-        console.log(`left-bottom`);
-        for (let index = 1; index < diffCol + 1; index++) {
-          const row = fromRow + index;
-          const col = fromCol - index;
-          const boardLoop = board[row][col];
-          checkRow.push(board[row][col]);
-          if (boardLoop !== 0) {
-            console.log(`valid false`);
-            checkValid = false;
-          }
-        }
-      }
-
-      const hasConsec = hasConsecutiveNumbers(checkRow, 1);
-      const hasRepeatsNumbers = hasRepeats(checkRow, 1);
-
-      if (hasConsec || hasRepeatsNumbers) {
-        selected = null;
         return false;
-      }
 
-      if (
-        board[targetRow][targetCol] === 1 ||
-        board[targetRow][targetCol] === 3
-      ) {
-        console.log(`diffRow: ${diffRow}`);
-        waitForRemove = { row: targetRow, col: targetCol };
-        return true;
-      }
+      default:
+        if (dPieceMove > 2) {
+          let rows = [];
 
-      return checkValid;
+          //left-top scan (-, -)
+          if (fromCol > toCol && fromRow > toRow) {
+            console.log("left top");
+            for (let index = 1; index < diffCol + 1; index++) {
+              const row = fromRow - index;
+              const col = fromCol - index;
+              rows.push(board[row][col]);
+            }
+          }
+
+          //right-top scan (-, +)
+          if (fromCol < toCol && fromRow > toRow) {
+            console.log(`right-top`);
+            for (let index = 1; index < diffCol + 1; index++) {
+              const row = fromRow - index;
+              const col = fromCol + index;
+              rows.push(board[row][col]);
+            }
+          }
+
+          //right-bottom scan (+, +)
+          if (fromCol < toCol && fromRow < toRow) {
+            console.log(`right-bottom`);
+            for (let index = 1; index < diffCol + 1; index++) {
+              const row = fromRow + index;
+              const col = fromCol + index;
+              rows.push(board[row][col]);
+            }
+          }
+
+          //left-bottom scan (+, -)
+          if (fromCol > toCol && fromRow < toRow) {
+            console.log(`left-bottom`);
+            for (let index = 1; index < diffCol + 1; index++) {
+              const row = fromRow + index;
+              const col = fromCol - index;
+              rows.push(board[row][col]);
+            }
+          }
+
+          let numCounts = {};
+          for (let index = 0; index < rows.length; index++) {
+            const element = rows[index];
+            if (numCounts[rows[index]]) {
+              numCounts[rows[index]] += 1;
+            } else {
+              numCounts = { ...numCounts, [element]: 1 };
+            }
+          }
+
+          // numObj[5] += 1;
+          console.log(numCounts);
+          console.log(Object.keys(numCounts).length);
+
+          if (Object.keys(numCounts).length === 1) {
+            numCounts = {};
+            return true;
+          }
+
+          if (Object.keys(numCounts).length === 2) {
+            if (board[toRow][toCol] === 0 && rows[rows.length - 2] !== 0) {
+              if (
+                numCounts[1] > 1 ||
+                numCounts[2] > 1 ||
+                numCounts[3] > 1 ||
+                numCounts[4] > 1
+              ) {
+                selected = null;
+                numCounts = {};
+                return false;
+              }
+              if (
+                rows[rows.length - 2] !== board[fromRow][fromCol] &&
+                rows[rows.length - 2] !== board[fromRow][fromCol] &&
+                rows[rows.length - 2] !== board[fromRow][fromCol] - 2
+              ) {
+                const captureRow = findCaptureColDynamic(fromRow, toRow);
+                const captureCol = findCaptureColDynamic(fromCol, toCol);
+                waitForRemove = { row: captureRow, col: captureCol };
+                numCounts = {};
+                return true;
+              }
+              selected = null;
+              numCounts = {};
+              return false;
+            }
+            selected = null;
+            numCounts = {};
+            return false;
+          }
+
+          selected = null;
+          numCounts = {};
+          return false;
+        }
+        break;
     }
   }
 
-  return true;
-
+  return false;
 }
 
 function movePiece(fromRow, fromCol, toRow, toCol) {
@@ -455,6 +770,7 @@ function handleClick(event) {
       movePiece(selected.row, selected.col, row, col);
       removePiece();
       selected = null;
+      return;
     }
   } else {
     if (
@@ -464,12 +780,17 @@ function handleClick(event) {
       board[row][col] === 4
     ) {
       selected = { row, col };
+      return;
     }
   }
 }
 
+// Game Initial Setup
+// ------------------------------------------
+// One time setup activities for event handlers
+// and setting initial global values.
 function playGame() {
-  drawGrid();
+  drawBoard();
   requestAnimationFrame(playGame);
 }
 
