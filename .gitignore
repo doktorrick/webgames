@@ -40,3 +40,5 @@ Thumbs.db
 
 # Debug files
 debug.log
+
+out/

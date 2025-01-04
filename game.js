@@ -8,6 +8,8 @@ const gridSize = canvas.width / 8;
 const canvasHeight = canvas.height;
 const canvasWidth = canvas.width;
 let selected = null;
+let lastPosition = null;
+
 let waitForRemove = null;
 
 let playerTurn = 1;
@@ -184,7 +186,7 @@ function drawBoard() {
       drawCellBorder(row, col);
       drawPiece(row, col);
       drawNumberCell(row, col);
-      drawCoord(row, col);
+      // drawCoord(row, col);
     }
   }
   drawHighlight();
@@ -427,13 +429,19 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
 
 function movePiece(fromRow, fromCol, toRow, toCol) {
   board[toRow][toCol] = board[fromRow][fromCol];
+  //promote king
   if (board[toRow][toCol] === 1 && toRow === 7) {
     board[toRow][toCol] = 3;
   }
+  //promote king
   if (board[toRow][toCol] === 2 && toRow === 0) {
     board[toRow][toCol] = 4;
   }
+  //reset the first select position
   board[fromRow][fromCol] = 0;
+  //set last position
+  lastPosition = {row: toRow, col: toCol}
+
   return;
 }
 
@@ -443,6 +451,23 @@ function removePiece() {
     waitForRemove = null;
   }
   return;
+}
+
+function isPawnCapturePossible() {
+  if(lastPosition !== null) {
+    let limit = lastPosition.row? Math.abs(lastPosition.row - 7) + 1: 0;
+    console.log(`limit is: ${limit}`)
+    //scan 4 directions
+    for (let index = 1; index < limit; index++) {
+      // console.log(index)
+      const position = board[lastPosition.row + index][lastPosition.col - index];
+      console.log(`${lastPosition.row + index} ${lastPosition.col - index} --> ${position}`);
+      // if( lastPosition.row - index === -1) break;
+    }
+
+    return false;
+  }
+  return false;
 }
 
 function handleClick(event) {
@@ -463,9 +488,14 @@ function handleClick(event) {
     if (isValid) {
       movePiece(selected.row, selected.col, row, col);
       removePiece();
+
+      // const possible = isPawnCapturePossible();
+      // if(!possible) return;
+  
       changePlayerTurn();
       selected = null;
       return;
+      
     }
   } else {
     if (
