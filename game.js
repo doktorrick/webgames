@@ -2,40 +2,71 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = 600;
 canvas.height = 600;
+let needsRender = true;
 
 const size = 8;
 const gridSize = canvas.width / 8;
 const canvasHeight = canvas.height;
 const canvasWidth = canvas.width;
 let selected = null;
+let preSelected = null;
 let lastPosition = null;
-
 let waitForRemove = null;
-
+let combo = 0;
+let readyCombo = false;
+let clickCountSelected = 0;
 let playerTurn = 1;
 const info = document.getElementById("info");
-info.textContent = `Player: ${playerTurn} 's turn (${playerTurn? "black": "white"})`;
+info.textContent = `Player: ${playerTurn} 's turn (${
+  playerTurn === 1 ? "black" : "white"
+})`;
 
 let board = [
-  [0, 1, 0, 1, 0, 1, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1, 0],
+  [0, 3, 0, 1, 0, 1, 0, 1],
+  [0, 0, 0, 0, 0, 0, 1, 0],
+  [0, 4, 0, 2, 0, 4, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 3, 0, 1, 0, 3, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 2, 0, 2, 0, 2, 0, 2],
+  [0, 0, 0, 2, 0, 0, 0, 2],
   [2, 0, 2, 0, 2, 0, 2, 0],
 ];
+
+// let board = [
+//   [0, 1, 0, 1, 0, 1, 0, 1],
+//   [1, 0, 1, 0, 1, 0, 1, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 4],
+//   [0, 0, 0, 0, 0, 0, 1, 0],
+//   [0, 2, 0, 2, 0, 2, 0, 0],
+//   [0, 0, 1, 0, 0, 0, 0, 0],
+//   [0, 2, 0, 2, 0, 2, 0, 2],
+//   [2, 0, 2, 0, 2, 0, 2, 0],
+// ];
+
+// let board = [
+//   [0, 1, 0, 1, 0, 0, 0, 1],
+//   [0, 0, 0, 0, 0, 0, 1, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 2, 0, 2, 0, 2, 0, 2],
+//   [2, 0, 2, 0, 2, 0, 2, 0],
+// ];
 
 function changePlayerTurn() {
   switch (playerTurn) {
     case 1:
       playerTurn = 2;
-      info.textContent = `Player: ${playerTurn} 's turn (${playerTurn? "black": "white"})`;
+      info.textContent = `Player: ${playerTurn} 's turn (${
+        playerTurn === 1 ? "black" : "white"
+      })`;
       break;
     case 2:
       playerTurn = 1;
-      info.textContent = `Player: ${playerTurn} 's turn (${playerTurn? "black": "white"})`;
+      info.textContent = `Player: ${playerTurn} 's turn (${
+        playerTurn === 1 ? "black" : "white"
+      })`;
       break;
     default:
       break;
@@ -135,9 +166,9 @@ function drawPiece(row, col) {
 function drawCoord(row, col) {
   const text = `(${row},${col})`;
   const textWidth = ctx.measureText(text).width;
-  const textHeight = 12; 
-  const textX = col * gridSize + (gridSize - textWidth) / 2;
-  const textY = row * gridSize + (gridSize + textHeight) / 2;
+  const textHeight = 12;
+  const textX = col * gridSize + gridSize / 2;
+  const textY = row * gridSize + gridSize / 2;
   ctx.font = "12px Arial";
   ctx.fillStyle = "black";
   ctx.fillText(text, textX, textY);
@@ -168,12 +199,14 @@ function drawHighlight() {
   if (selected) {
     if (selected.col < 0 || selected.col > 7) return;
     ctx.strokeStyle = "yellow";
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 6;
+
+    const offset = ctx.lineWidth / 2;
     ctx.strokeRect(
-      selected.col * gridSize,
-      selected.row * gridSize,
-      gridSize,
-      gridSize
+      selected.col * gridSize + offset,
+      selected.row * gridSize + offset,
+      gridSize - ctx.lineWidth,
+      gridSize - ctx.lineWidth
     );
   }
 }
@@ -186,10 +219,10 @@ function drawBoard() {
       drawCellBorder(row, col);
       drawPiece(row, col);
       drawNumberCell(row, col);
-      // drawCoord(row, col);
+      drawCoord(row, col);
+      drawHighlight();
     }
   }
-  drawHighlight();
 }
 
 function getCell(offsetX, offsetY) {
@@ -198,40 +231,140 @@ function getCell(offsetX, offsetY) {
   return { row, col };
 }
 
-function gameRules(fromRow, fromCol, toRow, toCol) {
-  //check waitForRemove
-  if (waitForRemove) {
+function gameRules(info) {
+  const { fromRow, fromCol, toRow, toCol } = info;
+  //select the same piece
+  if (fromRow === toRow && fromCol === toCol) {
+    console.log(">>>same piece");
+    selected = null;
+    clickCountSelected -= 1;
     return false;
   }
 
-  //select the same piece
-  if (fromRow === toRow && fromCol === toCol) {
+  //select the same team
+  if (board[fromRow][fromCol] === board[toRow][toCol]) {
+    console.log(">>>same team");
     selected = null;
+    clickCountSelected -= 1;
+    return false;
+  }
+
+  //check waitForRemove
+  if (waitForRemove) {
+    console.log(">>>waitForRemove");
     return false;
   }
 
   //prevent move the event cell
   if ((toRow + toCol) % 2 === 0) {
+    console.log(">>>can't move to event spot");
     return false;
+  }
+
+  console.log(`PlayerTurn is ${playerTurn}`);
+
+  //player turn
+  if (playerTurn === 1) {
+    let mergeResults = [];
+    const blackKing = scanBlackKing();
+    const blackPawns = scanBlackPawn();
+    console.log(`blackPawns: ${blackPawns}`);
+    console.log(`blackKing: ${JSON.stringify(blackKing)}`);
+
+    mergeResults = [...blackKing, ...blackPawns];
+    console.log(`scanmerge black: ${JSON.stringify(mergeResults)}`);
+
+    if (mergeResults?.length > 0) {
+      const isValidSelect = mergeResults.some((item) => {
+        // console.log(`selected...${selected.row} == ${item.from?.row} -> ${item.status} vs ${item.from?.col} -> ${fromCol}`);
+        if (item?.status === "king") {
+          if (
+            item.from?.row === fromRow &&
+            item.from?.col === fromCol &&
+            item.jumpTarget?.row === toRow &&
+            item.jumpTarget?.col === toCol
+          ) {
+            waitForRemove = { row: item?.capture.row, col: item?.capture.col };
+            return true;
+          }
+        }
+        return (
+          item?.before?.row === selected?.row &&
+          item?.before?.col === selected?.col &&
+          item?.jumpTarget?.row === toRow &&
+          item?.jumpTarget?.col === toCol
+        );
+      });
+      if (!isValidSelect) {
+        console.log(">>>wrong pick");
+        selected = null;
+        return false;
+      }
+    }
+  }
+
+  if (playerTurn === 2) {
+    let mergeResults = [];
+    const whiteKing = scanWhiteKing();
+    const whitePawns = scanWhitePawn();
+    console.log(`whitePawns: ${whitePawns}`);
+    console.log(`whiteKing: ${JSON.stringify(whiteKing)}`);
+
+    mergeResults = [...whiteKing, ...whitePawns];
+    console.log(`scanmerge: ${JSON.stringify(mergeResults)}`);
+
+    if (mergeResults?.length > 0) {
+      const isValidSelect = mergeResults.some((item) => {
+        // console.log(`selected...${selected.row} == ${item.from?.row} -> ${item.status} vs ${item.from?.col} -> ${fromCol}`);
+        if (item?.status === "king") {
+          if (
+            item.from?.row === fromRow &&
+            item.from?.col === fromCol &&
+            item.jumpTarget.row === toRow &&
+            item.jumpTarget.col === toCol
+          ) {
+            waitForRemove = { row: item?.capture.row, col: item?.capture.col };
+            return true;
+          }
+        }
+        return (
+          item?.before?.row === selected.row &&
+          item?.before?.col === selected.col &&
+          item?.jumpTarget?.row === toRow &&
+          item?.jumpTarget?.col === toCol
+        );
+      });
+      if (!isValidSelect) {
+        console.log(">>>wrong pick");
+        selected = null;
+        return false;
+      }
+    }
   }
 
   //normal pieces can't move left or right backwakd
   if (board[fromRow][fromCol] === 1 || board[fromRow][fromCol] === 2) {
     if (board[fromRow][fromCol] === 1 && fromRow > toRow) {
+      console.log(">>> player 1: fromRow > toRow");
+      console.log(`${fromRow}, ${toRow}`);
       return false;
     }
     if (board[fromRow][fromCol] === 2 && fromRow < toRow) {
+      console.log(">>>player 2: fromRow < toRow");
       return false;
     }
   }
 
   //prevent move straightforward or backward
   if (fromCol === toCol) {
+    console.log(">>>lock verticles");
     return false;
   }
 
   //prevent move the occupied spot
   if (board[toRow][toCol] !== 0) {
+    console.log(">>>occupied spot");
+
     return false;
   }
 
@@ -249,6 +382,7 @@ function gameRules(fromRow, fromCol, toRow, toCol) {
     }
   }
 
+  console.log("pass all rules");
   return true;
 }
 
@@ -264,167 +398,43 @@ function displayStatus(fromRow, toRow) {
 function isValidMove(fromRow, fromCol, toRow, toCol) {
   const diffRow = Math.abs(toRow - fromRow);
   const dPieceMove = diffRow;
+  let info = {
+    fromRow,
+    fromCol,
+    toRow,
+    toCol,
+  };
+  if (!gameRules(info)) return false;
+  if (
+    board[fromRow][fromCol] === 1 ||
+    board[fromRow][fromCol] === 2 ||
+    board[fromRow][fromCol] === 3 ||
+    board[fromRow][fromCol] === 4
+  ) {
+    if (dPieceMove === 1) {
+      if (board[toRow][toCol] === 0) {
+        return true;
+      }
+    }
 
-  const isInRules = gameRules(fromRow, fromCol, toRow, toCol);
-  if (!isInRules) return false;
+    if (dPieceMove === 2) {
+      const midRowDynamic = findMidRowDynamic(fromRow, toRow);
+      const midColDynamic = findMidColDynamic(fromCol, toCol);
+      if (
+        board[midRowDynamic][midColDynamic] !== board[fromRow][fromCol] &&
+        board[midRowDynamic][midColDynamic] !== 0 &&
+        board[midRowDynamic][midColDynamic] !== board[fromRow][fromCol] + 2
+      ) {
+        waitForRemove = { row: midRowDynamic, col: midColDynamic };
+        return true;
+      }
+      return false;
+    }
 
-  if (board[fromRow][fromCol] === 1 || board[fromRow][fromCol] === 2) {
-    switch (dPieceMove) {
-      case 1:
-        if (board[toRow][toCol] === 0) {
-          return true;
-        }
-        break;
-      case 2:
-        const midRowDynamic = findMidRowDynamic(fromRow, toRow);
-        const midColDynamic = findMidColDynamic(fromCol, toCol);
-
-        if (
-          board[midRowDynamic][midColDynamic] !== board[fromRow][fromCol] &&
-          board[midRowDynamic][midColDynamic] !== 0 &&
-          board[midRowDynamic][midColDynamic] !== board[fromRow][fromCol] + 2
-        ) {
-          waitForRemove = { row: midRowDynamic, col: midColDynamic };
-          return true;
-        }
-        return false;
-      default:
-        return false;
+    if (dPieceMove > 2 && dPieceMove < 8) {
+      return true;
     }
   }
-
-  //King state
-  if (board[fromRow][fromCol] === 3 || board[fromRow][fromCol] === 4) {
-    const targetRow = fromRow > toRow ? toRow + 1 : toRow - 1;
-    const targetCol = fromCol > toCol ? toCol + 1 : toCol - 1;
-    const diffRow = Math.abs(fromRow - toRow);
-    const diffCol = Math.abs(fromCol - toCol);
-
-    switch (dPieceMove) {
-      case 1:
-        if (board[toRow][toCol] === 0) {
-          return true;
-        }
-        break;
-      case 2:
-        if (
-          board[targetRow][targetCol] !== board[fromRow][fromCol] &&
-          board[targetRow][targetCol] !== 0 &&
-          board[targetRow][targetCol] !== board[fromRow][fromCol] - 2 &&
-          board[toRow][toCol] === 0
-        ) {
-          waitForRemove = { row: targetRow, col: targetCol };
-          return true;
-        }
-        if (board[targetRow][targetCol] === 0 && board[toRow][toCol] === 0) {
-          return true;
-        }
-        return false;
-
-      default:
-        if (dPieceMove > 2) {
-          let rows = [];
-
-          //left-top scan (-, -)
-          if (fromCol > toCol && fromRow > toRow) {
-            console.log("left top");
-            for (let index = 1; index < diffCol + 1; index++) {
-              const row = fromRow - index;
-              const col = fromCol - index;
-              rows.push(board[row][col]);
-            }
-          }
-
-          //right-top scan (-, +)
-          if (fromCol < toCol && fromRow > toRow) {
-            console.log(`right-top`);
-            for (let index = 1; index < diffCol + 1; index++) {
-              const row = fromRow - index;
-              const col = fromCol + index;
-              rows.push(board[row][col]);
-            }
-          }
-
-          //right-bottom scan (+, +)
-          if (fromCol < toCol && fromRow < toRow) {
-            console.log(`right-bottom`);
-            for (let index = 1; index < diffCol + 1; index++) {
-              const row = fromRow + index;
-              const col = fromCol + index;
-              rows.push(board[row][col]);
-            }
-          }
-
-          //left-bottom scan (+, -)
-          if (fromCol > toCol && fromRow < toRow) {
-            console.log(`left-bottom`);
-            for (let index = 1; index < diffCol + 1; index++) {
-              const row = fromRow + index;
-              const col = fromCol - index;
-              rows.push(board[row][col]);
-            }
-          }
-
-          let numCounts = {};
-          for (let index = 0; index < rows.length; index++) {
-            const element = rows[index];
-            if (numCounts[rows[index]]) {
-              numCounts[rows[index]] += 1;
-            } else {
-              numCounts = { ...numCounts, [element]: 1 };
-            }
-          }
-
-          // numObj[5] += 1;
-          console.log(numCounts);
-          console.log(Object.keys(numCounts).length);
-
-          if (Object.keys(numCounts).length === 1) {
-            numCounts = {};
-            return true;
-          }
-
-          if (Object.keys(numCounts).length === 2) {
-            if (board[toRow][toCol] === 0 && rows[rows.length - 2] !== 0) {
-              if (
-                numCounts[1] > 1 ||
-                numCounts[2] > 1 ||
-                numCounts[3] > 1 ||
-                numCounts[4] > 1
-              ) {
-                selected = null;
-                numCounts = {};
-                return false;
-              }
-              if (
-                rows[rows.length - 2] !== board[fromRow][fromCol] &&
-                rows[rows.length - 2] !== board[fromRow][fromCol] &&
-                rows[rows.length - 2] !== board[fromRow][fromCol] - 2
-              ) {
-                const captureRow = findCaptureColDynamic(fromRow, toRow);
-                const captureCol = findCaptureColDynamic(fromCol, toCol);
-                waitForRemove = { row: captureRow, col: captureCol };
-                numCounts = {};
-                return true;
-              }
-              selected = null;
-              numCounts = {};
-              return false;
-            }
-            selected = null;
-            numCounts = {};
-            return false;
-          }
-
-          selected = null;
-          numCounts = {};
-          return false;
-        }
-        break;
-    }
-  }
-
-  return false;
 }
 
 function movePiece(fromRow, fromCol, toRow, toCol) {
@@ -440,7 +450,11 @@ function movePiece(fromRow, fromCol, toRow, toCol) {
   //reset the first select position
   board[fromRow][fromCol] = 0;
   //set last position
-  lastPosition = {row: toRow, col: toCol}
+  selected = { row: toRow, col: toCol };
+
+  if (selected) {
+    updateBoardHightLight();
+  }
 
   return;
 }
@@ -453,21 +467,588 @@ function removePiece() {
   return;
 }
 
-function isPawnCapturePossible() {
-  if(lastPosition !== null) {
-    let limit = lastPosition.row? Math.abs(lastPosition.row - 7) + 1: 0;
-    console.log(`limit is: ${limit}`)
-    //scan 4 directions
-    for (let index = 1; index < limit; index++) {
-      // console.log(index)
-      const position = board[lastPosition.row + index][lastPosition.col - index];
-      console.log(`${lastPosition.row + index} ${lastPosition.col - index} --> ${position}`);
-      // if( lastPosition.row - index === -1) break;
+function updateBoardHightLight() {
+  if (!selected) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      drawCell(row, col);
+      drawCellBorder(row, col);
+      drawPiece(row, col);
+      drawNumberCell(row, col);
+      drawCoord(row, col);
+      drawHighlight();
+    }
+  }
+}
+
+//#region 4 direction scan
+function scanCaptureTopLeft(index, row, col, mode="normal") {
+  const rowNext = row - index - 1;
+  const colNext = col - index - 1;
+
+  const rowBefore = row - index + 1;
+  const colBefore = col - index + 1;
+
+  if (mode === "king") {
+    //white king
+    if(board[row][col] === 4) {
+      if ((row - index) >= 0 && (col - index) >= 0) {
+        if (board[row - index][col - index] === 1 || board[row - index][col - index] === 3) {
+          const checkPoint = {
+            row: row - index,
+            col: col - index,
+            status: "waiting",
+            delta: Math.abs(row + index - row),
+          };
+
+          let viralPawn = board[row - index][col - index];
+          let sumAll = 0;
+
+          for (let index = 0; index < checkPoint?.delta; index++) {
+            sumAll += board[checkPoint.row + index][checkPoint.col - index];
+          }
+
+          if (sumAll === viralPawn && board[rowNext]?.[colNext] === 0) {
+            let captureInfo = {
+              direction: "topLeft",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row - index, col: col - index },
+              jumpTarget: { row: rowNext, col: colNext },
+              status: "king",
+              class: "whiteking",
+            };
+            return captureInfo;
+          }
+        }
+      }
+    }
+    //black king
+    if(board[row][col] === 3) {
+      if ((row - index) >= 0 && (col - index) >= 0) {
+        if (board[row - index][col - index] === 2 || board[row - index][col - index] === 4) {
+          const checkPoint = {
+            row: row - index,
+            col: col + index,
+            status: "waiting",
+            delta: Math.abs(row + index - row),
+          };
+
+          let viralPawn = board[row - index][col - index];
+          let sumAll = 0;
+
+          for (let index = 0; index < checkPoint?.delta; index++) {
+            sumAll += board[checkPoint.row + index][checkPoint.col + index];
+          }
+
+          if (sumAll === viralPawn && board[rowNext]?.[colNext] === 0) {
+            let captureInfo = {
+              direction: "topLeft",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row - index, col: col - index },
+              jumpTarget: { row: rowNext, col: colNext },
+              status: "king",
+              class: "blackking",
+            };
+            return captureInfo;
+          }
+        }
+      }
+    }
+  }
+
+  if(mode === "normal") {
+    if (
+      board[row][col] === 2 &&
+      (row - index || col - index) >= 0 &&
+      (row - index || col - index) <= 7
+    ) {
+      if (
+        board[row - index][col - index] === 1 ||
+        board[row - index]?.[col - index] === 3
+      ) {
+        if (board[rowNext]?.[colNext] === 0) {
+          if (row === rowBefore && col === colBefore) {
+            return {
+              direction: "topleft",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row - index, col: col - index },
+              jumpTarget: { row: rowNext, col: colNext },
+            };
+          }
+          return null;
+        }
+        return null;
+      }
+      return null;
+    }
+  }
+
+}
+
+function scanCaptureTopRight(index, row, col, mode="normal") {
+  const rowNext = (row - index) - 1;
+  const colNext = (col + index) + 1;
+
+  const rowBefore = (row - index) + 1;
+  const colBefore = (col + index) - 1;
+
+  if (mode === "king") {
+    //white king
+    if(board[row][col] === 4) {
+      if ((row - index) >= 0 && (col + index) <= 7) {
+        if (board[row - index][col + index] === 1 || board[row - index][col + index] === 3) {
+          const checkPoint = {
+            row: row - index,
+            col: col + index,
+            status: "waiting",
+            delta: Math.abs(row + index - row),
+          };
+
+          let viralPawn = board[row - index][col + index];
+          let sumAll = 0;
+
+          for (let index = 0; index < checkPoint?.delta; index++) {
+            sumAll += board[checkPoint.row + index][checkPoint.col - index];
+          }
+
+          if (sumAll === viralPawn && board[rowNext]?.[colNext] === 0) {
+            let captureInfo = {
+              direction: "topRight",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row - index, col: col + index },
+              jumpTarget: { row: rowNext, col: colNext },
+              status: "king",
+              class: "whiteking",
+            };
+            return captureInfo;
+          }
+        }
+      }
     }
 
-    return false;
+    //black king
+    if(board[row][col] === 3) {
+      if ((row - index) >= 0 && (col + index) <= 7) {
+        if (board[row - index][col + index] === 2 || board[row - index][col + index] === 4) {
+          const checkPoint = {
+            row: row - index,
+            col: col + index,
+            status: "waiting",
+            delta: Math.abs(row + index - row),
+          };
+
+          let viralPawn = board[row - index][col + index];
+          let sumAll = 0;
+
+          for (let index = 0; index < checkPoint?.delta; index++) {
+            sumAll += board[checkPoint.row + index][checkPoint.col - index];
+          }
+
+          if (sumAll === viralPawn && board[rowNext]?.[colNext] === 0) {
+            let captureInfo = {
+              direction: "topRight",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row - index, col: col + index },
+              jumpTarget: { row: rowNext, col: colNext },
+              status: "king",
+              class: "blackking",
+            };
+            return captureInfo;
+          }
+        }
+          
+      }
+    }
+
   }
-  return false;
+
+  if(mode === "normal") {
+    if (
+      board[row][col] === 2 &&
+      (row - index || col + index) >= 0 &&
+      (row - index || col - index) <= 7
+    ) {
+      if (
+        board[row - index][col + index] === 1 ||
+        board[row - index]?.[col + index] === 3
+      ) {
+        if (board[rowNext]?.[colNext] === 0) {
+          if (row === rowBefore && col === colBefore) {
+            let captureInfo = {
+              direction: "topRight",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row - index, col: col + index },
+              jumpTarget: { row: rowNext, col: colNext },
+            };
+            return captureInfo;
+          }
+          return null;
+        }
+        return null;
+      }
+      return null;
+    }
+
+  }
+
+}
+
+function scanCaptureBottomLeft(index, row, col, mode="normal") {
+  const rowNext = (row + index) + 1;
+  const colNext = (col - index) - 1;
+
+  const rowBefore = (row + index) - 1;
+  const colBefore = (col - index) + 1;
+
+  if (mode === "king" && board[row][col] === 4) {
+    //white king
+    if (
+      (row + index || col - index) >= 0 &&
+      row + index <= 7 &&
+      (row + index || col - index) <= 7
+    ) {
+      //detect opposite player
+      if (
+        board[row + index][col - index] === 1 ||
+        board[row + index][col - index] === 3
+      ) {
+        console.log("BottomLeft...");
+        console.log(`detected index: ${row + index}, ${col - index}`);
+        const checkPoint = {
+          row: row + index,
+          col: col - index,
+          status: "waiting",
+          delta: Math.abs(row + index - row),
+        };
+
+        let viralPawn = board[row + index][col - index];
+        let sumAll = 0;
+        for (let index = 0; index < checkPoint?.delta; index++) {
+          console.log(
+            `${checkPoint.row - index}, ${checkPoint.col - index} ===> ${
+              board[checkPoint.row - index][checkPoint.col - index]
+            }`
+          );
+          sumAll += board[checkPoint.row - index][checkPoint.col - index];
+        }
+        if (sumAll === viralPawn && board[rowNext][colNext] === 0) {
+          let captureInfo = {
+            direction: "bottomLeft",
+            from: { row, col },
+            before: { row: rowBefore, col: colBefore },
+            capture: { row: row + index, col: col - index },
+            jumpTarget: { row: rowNext, col: colNext },
+            status: "king",
+            class: "whiteking",
+          };
+          return captureInfo;
+        }
+        console.log(`detected index: ${row + index}, ${col - index} not pass`);
+        return null;
+      }
+    }
+  }
+
+  //normal
+  if (mode === "normal") {
+    if (
+      board[row][col] === 1 &&
+      (row + index || col - index) >= 0 &&
+      row + index <= 7 &&
+      (row + index || col - index) <= 7
+    ) {
+      if (
+        board[row + index][col - index] === 2 ||
+        board[row + index]?.[col - index] === 4
+      ) {
+        if (board[rowNext]?.[colNext] === 0) {
+          console.log(
+            `${row + index}, ${
+              col - index
+            } Before: ${rowBefore}, ${colBefore} capture: ${rowNext}, ${colNext}`
+          );
+          console.log(
+            `row col check ===> ${row + index} ,${col - index} = ${
+              board[row + index][col - index]
+            }`
+          );
+
+          if (row === rowBefore && col === colBefore) {
+            let captureInfo = {
+              direction: "bottomLeft",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row + index, col: col - index },
+              jumpTarget: { row: rowNext, col: colNext },
+            };
+            return captureInfo;
+          }
+          return null;
+        }
+        return null;
+      }
+      return null;
+    }
+  }
+}
+
+function scanCaptureBottomRight(index, row, col, mode="normal") {
+  const rowNext = row + index + 1;
+  const colNext = col + index + 1;
+
+  const rowBefore = row + index - 1;
+  const colBefore = col + index - 1;
+
+  if (mode === "king") {
+    //white king
+    if(board[row][col] === 4) {
+      if (
+        (row + index || col + index) >= 0 &&
+        row + index <= 7 &&
+        (row + index || col + index) <= 7
+      ) {
+        //detect opposite player
+        if (
+          board[row + index][col + index] === 1 ||
+          board[row + index][col + index] === 3
+        ) {
+          // console.log(`detected index: ${row + index}, ${col + index}`);
+          const checkPoint = {
+            row: row + index,
+            col: col + index,
+            status: "waiting",
+            delta: Math.abs(row + index - row),
+          };
+  
+          let viralPawn = board[row + index][col + index];
+          let sumAll = 0;
+          for (let index = 0; index < checkPoint?.delta; index++) {
+            console.log(
+              `${checkPoint.row - index}, ${checkPoint.col - index} ===> ${
+                board[checkPoint.row - index][checkPoint.col - index]
+              }`
+            );
+            sumAll += board[checkPoint.row - index][checkPoint.col - index];
+          }
+          if (sumAll === viralPawn && board[rowNext][colNext] === 0) {
+            let captureInfo = {
+              direction: "bottomRight",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row + index, col: col + index },
+              jumpTarget: { row: rowNext, col: colNext },
+              status: "king",
+              class: "whiteking",
+            };
+            return captureInfo;
+          }
+        }
+      }
+    }
+
+    //black king
+    if(board[row][col] === 3) {
+      if ( (row + index || col + index) >= 0 && 
+      row + index <= 7 && 
+      (row + index || col + index) <= 7) {
+        //detect opposite player
+        if (
+          board[row + index][col + index] === 2 ||
+          board[row + index][col + index] === 4
+        ) {
+          // console.log(`detected index: ${row + index}, ${col + index}`);
+          const checkPoint = {
+            row: row + index,
+            col: col + index,
+            status: "waiting",
+            delta: Math.abs(row + index - row),
+          };
+  
+          let viralPawn = board[row + index][col + index];
+          let sumAll = 0;
+          for (let index = 0; index < checkPoint?.delta; index++) {
+            console.log(
+              `${checkPoint.row - index}, ${checkPoint.col - index} ===> ${
+                board[checkPoint.row - index][checkPoint.col - index]
+              }`
+            );
+            sumAll += board[checkPoint.row - index][checkPoint.col - index];
+          }
+          // console.log("show sum ======>" + sumAll + "   vs    " + viralPawn);
+          // console.log(`rowNext: ${rowNext}, colNext: ${colNext}`);
+          if (sumAll === viralPawn && board[rowNext][colNext] === 0) {
+            let captureInfo = {
+              direction: "bottomRight",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row + index, col: col + index },
+              jumpTarget: { row: rowNext, col: colNext },
+              status: "king",
+              class: "blackking",
+            };
+            return captureInfo;
+          }
+        }
+      }
+    }
+  }
+
+  if (mode === "normal") {
+    if (
+      board[row][col] === 1 &&
+      (row + index || col + index) >= 0 &&
+      row + index <= 7 &&
+      (row + index || col + index) <= 7
+    ) {
+      if (
+        board[row + index][col + index] === 2 ||
+        board[row + index]?.[col + index] === 4
+      ) {
+        if (board[rowNext]?.[colNext] === 0) {
+          console.log(
+            `${row + index}, ${
+              col - index
+            } Before: ${rowBefore}, ${colBefore} capture: ${rowNext}, ${colNext}`
+          );
+          console.log(
+            `row col check ===> ${row + index} ,${col - index} = ${
+              board[row + index][col - index]
+            }`
+          );
+          if (row === rowBefore && col === colBefore) {
+            let captureInfo = {
+              direction: "bottomRight",
+              from: { row, col },
+              before: { row: rowBefore, col: colBefore },
+              capture: { row: row + index, col: col + index },
+              jumpTarget: { row: rowNext, col: colNext },
+            };
+            return captureInfo;
+          }
+          return null;
+        }
+        return null;
+      }
+      return null;
+    }
+  }
+
+}
+//#endregion
+
+function scanBlackPawn() {
+  if (playerTurn !== 1) return false;
+  let scanResult = [];
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      if (board[row][col] === 1 && board[row][col]) {
+        for (let index = 0; index < 8; index++) {
+          const bottomLeft = scanCaptureBottomLeft(index, row, col);
+          const bottomRight = scanCaptureBottomRight(index, row, col);
+          if (bottomLeft) {
+            scanResult.push(bottomLeft);
+          }
+          if (bottomRight) {
+            scanResult.push(bottomRight);
+          }
+        }
+      }
+    }
+  }
+  return scanResult;
+}
+
+function scanWhitePawn() {
+  if (playerTurn !== 2) return false;
+  let scanResult = [];
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      if (board[row][col] === 2 && board[row][col] !== null) {
+        for (let index = 0; index < 8; index++) {
+          const topLeft = scanCaptureTopLeft(index, row, col);
+          const topright = scanCaptureTopRight(index, row, col);
+          if (topLeft) {
+            scanResult.push(topLeft);
+          }
+          if (topright) {
+            scanResult.push(topright);
+          }
+        }
+      }
+    }
+  }
+  return scanResult;
+}
+
+function scanWhiteKing() {
+  if (playerTurn !== 2) return false;
+  let scanResult = [];
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      if (board[row][col] === 4 && board[row][col]) {
+        // console.log(`found whiteking: row: ${row}, col: ${col}`);
+        for (let index = 0; index < 8; index++) {
+          const topLeft = scanCaptureTopLeft(index, row, col, "king");
+          const topRight = scanCaptureTopRight(index, row, col, "king");
+          const bottomRight = scanCaptureBottomRight(index, row, col, "king");
+          const bottomLeft = scanCaptureBottomLeft(index, row, col, "king");
+          
+          if (topLeft) {
+            scanResult.push(topLeft);
+          }
+          if (topRight) {
+            scanResult.push(topRight);
+          }
+          if (bottomRight) {
+            scanResult.push(bottomRight);
+          }
+          if (bottomLeft) {
+            scanResult.push(bottomLeft);
+          }
+        }
+      }
+    }
+  }
+  return scanResult;
+}
+
+function scanBlackKing() {
+  if (playerTurn !== 1) return false;
+  let scanResult = [];
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      if (board[row][col] === 3 && board[row][col]) {
+        // console.log(`found black king: row: ${row}, col: ${col}`);
+        for (let index = 0; index < 8; index++) {
+          const topLeft = scanCaptureTopLeft(index, row, col, "king");
+          const topRight = scanCaptureTopRight(index, row, col, "king");
+          const bottomRight = scanCaptureBottomRight(index, row, col, "king");
+          const bottomLeft = scanCaptureBottomLeft(index, row, col, "king");
+          
+          if (topLeft) {
+            scanResult.push(topLeft);
+          }
+          if (topRight) {
+            scanResult.push(topRight);
+          }
+          if (bottomRight) {
+            scanResult.push(bottomRight);
+          }
+          if (bottomLeft) {
+            scanResult.push(bottomLeft);
+          }       
+        }
+      }
+    }
+  }
+  return scanResult;
 }
 
 function handleClick(event) {
@@ -480,22 +1061,15 @@ function handleClick(event) {
     !(offsetY >= 0 && offsetY <= canvas.height)
   )
     return;
-
   const { row, col } = getCell(offsetX, offsetY);
-
   if (selected) {
     const isValid = isValidMove(selected.row, selected.col, row, col);
     if (isValid) {
       movePiece(selected.row, selected.col, row, col);
       removePiece();
-
-      // const possible = isPawnCapturePossible();
-      // if(!possible) return;
-  
       changePlayerTurn();
       selected = null;
       return;
-      
     }
   } else {
     if (
@@ -504,10 +1078,32 @@ function handleClick(event) {
       board[row][col] === 3 ||
       board[row][col] === 4
     ) {
+      console.log("user selecting...");
       selected = { row, col };
       return;
     }
   }
+  return;
+}
+
+function scanBoard() {
+  console.log("start scanning...");
+  if (!selected) {
+    console.log("scanboard rejected!");
+    return false;
+  }
+  //prescan
+  let scanResults = [];
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      const result = checkAllPossibleFirstMove(row, col);
+      if (result !== null && result !== undefined) {
+        scanResults = [...scanResults, ...result];
+      }
+    }
+  }
+  console.log(`scaning..${JSON.stringify(scanResults)}`);
+  return scanResults;
 }
 
 // Game Initial Setup

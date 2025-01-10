@@ -1,0 +1,98 @@
+        // if (dPieceMove > 2) {
+        //   let rows = [];
+
+        //   //left-top scan (-, -)
+        //   if (fromCol > toCol && fromRow > toRow) {
+        //     console.log("left top");
+        //     for (let index = 1; index < diffCol + 1; index++) {
+        //       const row = fromRow - index;
+        //       const col = fromCol - index;
+        //       rows.push(board[row][col]);
+        //     }
+        //   }
+
+        //   //right-top scan (-, +)
+        //   if (fromCol < toCol && fromRow > toRow) {
+        //     console.log(`right-top`);
+        //     for (let index = 1; index < diffCol + 1; index++) {
+        //       const row = fromRow - index;
+        //       const col = fromCol + index;
+        //       rows.push(board[row][col]);
+        //     }
+        //   }
+
+        //   //right-bottom scan (+, +)
+        //   if (fromCol < toCol && fromRow < toRow) {
+        //     console.log(`right-bottom`);
+        //     for (let index = 1; index < diffCol + 1; index++) {
+        //       const row = fromRow + index;
+        //       const col = fromCol + index;
+        //       rows.push(board[row][col]);
+        //     }
+        //   }
+
+        //   //left-bottom scan (+, -)
+        //   if (fromCol > toCol && fromRow < toRow) {
+        //     console.log(`left-bottom`);
+        //     for (let index = 1; index < diffCol + 1; index++) {
+        //       const row = fromRow + index;
+        //       const col = fromCol - index;
+        //       rows.push(board[row][col]);
+        //     }
+        //   }
+
+        //   let numCounts = {};
+        //   for (let index = 0; index < rows.length; index++) {
+        //     const element = rows[index];
+        //     if (numCounts[rows[index]]) {
+        //       numCounts[rows[index]] += 1;
+        //     } else {
+        //       numCounts = { ...numCounts, [element]: 1 };
+        //     }
+        //   }
+
+        //   // numObj[5] += 1;
+        //   console.log(numCounts);
+        //   console.log(Object.keys(numCounts).length);
+
+        //   if (Object.keys(numCounts).length === 1) {
+        //     numCounts = {};
+        //     return true;
+        //   }
+
+        //   if (Object.keys(numCounts).length === 2) {
+        //     if (board[toRow][toCol] === 0 && rows[rows.length - 2] !== 0) {
+        //       if (
+        //         numCounts[1] > 1 ||
+        //         numCounts[2] > 1 ||
+        //         numCounts[3] > 1 ||
+        //         numCounts[4] > 1
+        //       ) {
+        //         selected = null;
+        //         numCounts = {};
+        //         return false;
+        //       }
+        //       if (
+        //         rows[rows.length - 2] !== board[fromRow][fromCol] &&
+        //         rows[rows.length - 2] !== board[fromRow][fromCol] &&
+        //         rows[rows.length - 2] !== board[fromRow][fromCol] - 2
+        //       ) {
+        //         const captureRow = findCaptureColDynamic(fromRow, toRow);
+        //         const captureCol = findCaptureColDynamic(fromCol, toCol);
+        //         waitForRemove = { row: captureRow, col: captureCol };
+        //         numCounts = {};
+        //         return true;
+        //       }
+        //       selected = null;
+        //       numCounts = {};
+        //       return false;
+        //     }
+        //     selected = null;
+        //     numCounts = {};
+        //     return false;
+        //   }
+
+        //   selected = null;
+        //   numCounts = {};
+        //   return false;
+        // }
