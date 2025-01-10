@@ -24,9 +24,9 @@ info.textContent = `Player: ${playerTurn} 's turn (${
 let board = [
   [0, 3, 0, 1, 0, 1, 0, 1],
   [0, 0, 0, 0, 0, 0, 1, 0],
-  [0, 4, 0, 2, 0, 4, 0, 0],
+  [0, 1, 0, 2, 0, 4, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 3, 0, 1, 0, 3, 0, 0],
+  [0, 3, 0, 4, 0, 3, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 2, 0, 0, 0, 2],
   [2, 0, 2, 0, 2, 0, 2, 0],
@@ -526,11 +526,12 @@ function scanCaptureTopLeft(index, row, col, mode="normal") {
     }
     //black king
     if(board[row][col] === 3) {
+      console.log(`black king topleft`)
       if ((row - index) >= 0 && (col - index) >= 0) {
         if (board[row - index][col - index] === 2 || board[row - index][col - index] === 4) {
           const checkPoint = {
             row: row - index,
-            col: col + index,
+            col: col - index,
             status: "waiting",
             delta: Math.abs(row + index - row),
           };
@@ -539,7 +540,7 @@ function scanCaptureTopLeft(index, row, col, mode="normal") {
           let sumAll = 0;
 
           for (let index = 0; index < checkPoint?.delta; index++) {
-            sumAll += board[checkPoint.row + index][checkPoint.col + index];
+            sumAll += board[checkPoint.row + index][checkPoint.col - index];
           }
 
           if (sumAll === viralPawn && board[rowNext]?.[colNext] === 0) {
