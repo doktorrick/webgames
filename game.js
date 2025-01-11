@@ -14,6 +14,7 @@ let lastPosition = null;
 let waitForRemove = null;
 let combo = 0;
 let readyCombo = false;
+let removeMark = 0;
 let clickCountSelected = 0;
 let playerTurn = 1;
 const info = document.getElementById("info");
@@ -22,13 +23,13 @@ info.textContent = `Player: ${playerTurn} 's turn (${
 })`;
 
 let board = [
-  [0, 3, 0, 1, 0, 1, 0, 1],
+  [0, 1, 0, 1, 0, 1, 0, 1],
+  [1, 0, 1, 0, 1, 0, 1, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 1, 0],
-  [0, 1, 0, 2, 0, 4, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 3, 0, 4, 0, 3, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 2, 0, 0, 0, 2],
+  [0, 0, 0, 0, 1, 0, 0, 0],
+  [0, 2, 0, 4, 0, 2, 0, 2],
   [2, 0, 2, 0, 2, 0, 2, 0],
 ];
 
@@ -437,7 +438,7 @@ function isValidMove(fromRow, fromCol, toRow, toCol) {
   }
 }
 
-function movePiece(fromRow, fromCol, toRow, toCol) {
+function movePieceAndRemove(fromRow, fromCol, toRow, toCol) {
   board[toRow][toCol] = board[fromRow][fromCol];
   //promote king
   if (board[toRow][toCol] === 1 && toRow === 7) {
@@ -452,10 +453,40 @@ function movePiece(fromRow, fromCol, toRow, toCol) {
   //set last position
   selected = { row: toRow, col: toCol };
 
-  if (selected) {
-    updateBoardHightLight();
-  }
+  removePiece();
+  updateBoardHightLight();
 
+  if (selected && removeMark > 0) {
+    if(board[selected.row][selected.col] == 1) {
+      const blackPawn = scanBlackPawn();
+      if(blackPawn.length > 0) {
+        readyCombo = true;
+        return;
+      }
+    }
+    if(board[selected.row][selected.col] == 2) {
+      const whiteKing = scanBlackKing();
+      if(whiteKing.length > 0) {
+        readyCombo = true;
+        return;
+      }
+    }
+    if(board[selected.row][selected.col] == 2) {
+      const whitePawn = scanWhitePawn();
+      if(whitePawn.length > 0) {
+        readyCombo = true;
+        return;
+      }
+    }
+    if(board[selected.row][selected.col] == 4) {
+      const whiteKing = scanWhiteKing();
+      if(whiteKing.length > 0) {
+        readyCombo = true;
+        return;
+      }
+    }
+  }
+  readyCombo = false;
   return;
 }
 
@@ -463,6 +494,7 @@ function removePiece() {
   if (waitForRemove !== null) {
     board[waitForRemove.row][waitForRemove.col] = 0;
     waitForRemove = null;
+    removeMark += 1;
   }
   return;
 }
@@ -1026,7 +1058,6 @@ function scanBlackKing() {
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
       if (board[row][col] === 3 && board[row][col]) {
-        // console.log(`found black king: row: ${row}, col: ${col}`);
         for (let index = 0; index < 8; index++) {
           const topLeft = scanCaptureTopLeft(index, row, col, "king");
           const topRight = scanCaptureTopRight(index, row, col, "king");
@@ -1066,9 +1097,12 @@ function handleClick(event) {
   if (selected) {
     const isValid = isValidMove(selected.row, selected.col, row, col);
     if (isValid) {
-      movePiece(selected.row, selected.col, row, col);
-      removePiece();
+      movePieceAndRemove(selected.row, selected.col, row, col);
+      if(readyCombo) {
+        return;
+      }
       changePlayerTurn();
+      removeMark = 0;
       selected = null;
       return;
     }
@@ -1079,32 +1113,11 @@ function handleClick(event) {
       board[row][col] === 3 ||
       board[row][col] === 4
     ) {
-      console.log("user selecting...");
       selected = { row, col };
       return;
     }
   }
   return;
-}
-
-function scanBoard() {
-  console.log("start scanning...");
-  if (!selected) {
-    console.log("scanboard rejected!");
-    return false;
-  }
-  //prescan
-  let scanResults = [];
-  for (let row = 0; row < size; row++) {
-    for (let col = 0; col < size; col++) {
-      const result = checkAllPossibleFirstMove(row, col);
-      if (result !== null && result !== undefined) {
-        scanResults = [...scanResults, ...result];
-      }
-    }
-  }
-  console.log(`scaning..${JSON.stringify(scanResults)}`);
-  return scanResults;
 }
 
 // Game Initial Setup
