@@ -4,23 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MakHos Battles</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
     <style>
         body {
             margin: 0;
             display: flex;
+            margin: 0 auto;
             justify-content: center; 
+            flex-direction: column;
             align-items: center; 
             height: 100vh; 
             background-color: black; 
             overflow: hidden;
+            color: white;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        #info {
+            height: 50px;
+            display: flex;
+            align-items: center; 
         }
         canvas {
             display: block;
         }
     </style>
 </head>
-<body class="flex flex-col">
+<body class="">
     <h1 class="text-white text-xl font-bold">MAKHOS</h1>
     <div id="info" class="flex flex-row text-white h-[50px]"></div>
     <canvas id="gameCanvas"></canvas>  

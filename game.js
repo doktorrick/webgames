@@ -33,28 +33,6 @@ let board = [
   [2, 0, 2, 0, 2, 0, 2, 0],
 ];
 
-// let board = [
-//   [0, 1, 0, 1, 0, 1, 0, 1],
-//   [1, 0, 1, 0, 1, 0, 1, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 4],
-//   [0, 0, 0, 0, 0, 0, 1, 0],
-//   [0, 2, 0, 2, 0, 2, 0, 0],
-//   [0, 0, 1, 0, 0, 0, 0, 0],
-//   [0, 2, 0, 2, 0, 2, 0, 2],
-//   [2, 0, 2, 0, 2, 0, 2, 0],
-// ];
-
-// let board = [
-//   [0, 1, 0, 1, 0, 0, 0, 1],
-//   [0, 0, 0, 0, 0, 0, 1, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 0, 0, 0, 0, 0, 0, 0],
-//   [0, 2, 0, 2, 0, 2, 0, 2],
-//   [2, 0, 2, 0, 2, 0, 2, 0],
-// ];
-
 function changePlayerTurn() {
   switch (playerTurn) {
     case 1:
@@ -914,8 +892,7 @@ function scanCaptureBottomRight(index, row, col, mode="normal") {
             );
             sumAll += board[checkPoint.row - index][checkPoint.col - index];
           }
-          // console.log("show sum ======>" + sumAll + "   vs    " + viralPawn);
-          // console.log(`rowNext: ${rowNext}, colNext: ${colNext}`);
+
           if (sumAll === viralPawn && board[rowNext][colNext] === 0) {
             let captureInfo = {
               direction: "bottomRight",
