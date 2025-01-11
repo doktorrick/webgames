@@ -23,8 +23,8 @@ info.textContent = `Player: ${playerTurn} 's turn (${
 })`;
 
 let board = [
-  [0, 1, 0, 1, 0, 1, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1, 0],
+  [0, 1, 0, 1, 0, 0, 0, 0],
+  [1, 0, 1, 0, 1, 0, 2, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
@@ -111,11 +111,13 @@ function drawCustomPawn(row, col, color, isKing = false) {
 
   // Draw "👑" if it's a king pawn
   if (isKing) {
-    ctx.font = `${radius}px sans-serif`;
+    ctx.save(); // Save the current canvas state
+    ctx.font = `${radius}px sans-serif`; // Set the font for the crown
     ctx.fillStyle = "gold"; // Golden crown for kings
     ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("👑", x, y); // Position slightly above center
+    ctx.textBaseline = "middle"; // Align text vertically to the middle
+    ctx.fillText("👑", x, y); // Draw the crown emoji
+    ctx.restore(); // Restore the canvas state to avoid affecting other drawings
   }
 }
 
@@ -143,12 +145,13 @@ function drawPiece(row, col) {
 }
 
 function drawCoord(row, col) {
+  ctx.beginPath();
   const text = `(${row},${col})`;
-  const textWidth = ctx.measureText(text).width;
-  const textHeight = 12;
-  const textX = col * gridSize + gridSize / 2;
-  const textY = row * gridSize + gridSize / 2;
+  const textX = col * gridSize + gridSize / 2; 
+  const textY = row * gridSize + gridSize / 2;   
   ctx.font = "12px Arial";
+  ctx.textAlign = "center"; 
+  ctx.textBaseline = "middle"; 
   ctx.fillStyle = "black";
   ctx.fillText(text, textX, textY);
 }
@@ -198,7 +201,7 @@ function drawBoard() {
       drawCellBorder(row, col);
       drawPiece(row, col);
       drawNumberCell(row, col);
-      // drawCoord(row, col);
+      drawCoord(row, col);
       drawHighlight();
     }
   }
