@@ -26,8 +26,8 @@ let board = [
   [0, 1, 0, 1, 0, 1, 0, 1],
   [1, 0, 1, 0, 1, 0, 1, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 3, 0, 0, 0],
+  [0, 0, 0, 4, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 2, 0, 2, 0, 2, 0, 2],
   [2, 0, 2, 0, 2, 0, 2, 0],
@@ -134,10 +134,14 @@ function drawPiece(row, col) {
       drawCustomPawn(row, col, "white");
       break;
     case 3:
-      drawCustomPawn(row, col, "black", true);
+      // drawCustomPawn(row, col, "black", true);
+      drawPawn(row, col, "black", true);
+
       break;
     case 4:
-      drawCustomPawn(row, col, "white", true);
+      // drawCustomPawn(row, col, "white", true);
+      drawPawn(row, col, "white", true);
+
       break;
     default:
       break;
