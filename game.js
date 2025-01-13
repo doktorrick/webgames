@@ -52,7 +52,14 @@ function changePlayerTurn() {
   }
 }
 
-function drawCustomPawn(row, col, color, isKing = false) {
+function drawCustomPawn(
+  row,
+  col,
+  color,
+  isKing = false,
+  proBlack = false,
+  proKing = false
+) {
   const x = col * gridSize + gridSize / 2;
   const y = row * gridSize + gridSize / 2;
   const radius = gridSize / 3; // Radius of the circle
@@ -98,19 +105,154 @@ function drawCustomPawn(row, col, color, isKing = false) {
 
   // Add border for definition
   ctx.lineWidth = 3;
-  ctx.strokeStyle = color === "white" ? "#7a7a7a" : "#4a0000"; // Gray border for white, darker for others
+  ctx.strokeStyle = color === "white" ? "rgba(200, 200, 200, 0.3)" : "#4a0000"; // Gray border for white, darker for others
   ctx.stroke();
 
   // Add a reflective highlight for the white pawn
-  if (color === "white") {
+  if (color === "white" || color === "black") {
     ctx.beginPath();
     ctx.arc(x - radius / 3, y - radius / 3, radius / 4, 0, Math.PI * 2);
     ctx.fillStyle = "rgba(255, 255, 255, 0.6)"; // Bright reflection
     ctx.fill();
   }
 
+  if (proBlack) {
+    const x = col * gridSize + gridSize / 2;
+    const y = row * gridSize + gridSize / 2;
+    const radius = gridSize / 3; // Radius of the circle
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(
+      x + 3,
+      y + 3,
+      radius * 1.1,
+      radius * 0.9,
+      Math.PI / 4,
+      0,
+      Math.PI * 2
+    );
+    ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; // Subtle shadow
+    ctx.fill();
+
+    // Create the main pawn body
+    const gradient = ctx.createRadialGradient(
+      x,
+      y - radius / 4,
+      radius / 6,
+      x,
+      y,
+      radius
+    );
+    gradient.addColorStop(
+      0,
+      color === "white" ? "rgba(255, 255, 255, 0.8)" : "rgba(50, 50, 50, 0.8)"
+    );
+    gradient.addColorStop(
+      0.5,
+      color === "white" ? "rgba(200, 200, 255, 0.4)" : "rgba(30, 30, 30, 0.6)"
+    );
+    gradient.addColorStop(
+      1,
+      color === "white" ? "rgba(150, 150, 200, 0.2)" : "rgba(10, 10, 10, 0.4)"
+    );
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = gradient; // Apply the gradient
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle =
+      color === "white" ? "rgba(255, 255, 255, 0.5)" : "rgba(50, 50, 50, 0.5)";
+    ctx.stroke();
+  }
+
+  if (proKing) {
+    ctx.save();
+    let auraColors;
+    if (color === "white") {
+      // White pawn aura (light gold and blue)
+      auraColors = [
+        "rgba(255, 215, 0, 0.6)",
+        "rgba(255, 204, 0, 0.4)",
+        "rgba(255, 255, 0, 0.2)",
+      ];
+    } else {
+      // Black pawn aura (purple-black villain aura)
+      auraColors = [
+        "rgba(128, 0, 128, 0.6)", // Dark purple
+        "rgba(75, 0, 130, 0.4)", // Indigo purple
+        "rgba(50, 0, 80, 0.2)", // Dark purple
+      ];
+    }
+
+    // Apply fire-like or halo frame with jagged edges or blur
+    for (let i = 1; i <= 3; i++) {
+      // Create random jitter offset to give flame-like effect
+      const jitterX = Math.random() * 4 - 2; // Random horizontal offset between -2 and 2
+      const jitterY = Math.random() * 4 - 2; // Random vertical offset between -2 and 2
+
+      ctx.beginPath();
+      ctx.arc(x + jitterX, y + jitterY, radius + i * 5, 0, Math.PI * 2); // Apply jitter to the circle center
+      ctx.strokeStyle = auraColors[i - 1]; // Layered aura colors
+      ctx.lineWidth = 6; // Thicker lines for a fire effect
+      ctx.lineJoin = "round"; // Rounded corners for a smoother flame-like effect
+      ctx.stroke();
+    }
+
+    // Fire-like layer (dynamic flame effect)
+    // for (let i = 0; i < 20; i++) {
+    //   const angle = (Math.PI * 2 * i) / 20; // Spread flames around the circle
+    //   const flameLength = radius + 15 + Math.random() * 10; // Vary flame height
+    //   const flameTipX = x + Math.cos(angle) * flameLength;
+    //   const flameTipY = y + Math.sin(angle) * flameLength;
+
+    //   ctx.beginPath();
+    //   ctx.moveTo(
+    //     x + Math.cos(angle) * (radius + 10),
+    //     y + Math.sin(angle) * (radius + 10)
+    //   ); // Start at outer edge
+    //   ctx.lineTo(flameTipX, flameTipY); // Move to flame tip
+    //   ctx.lineTo(
+    //     x + Math.cos(angle + 0.1) * (radius + 10),
+    //     y + Math.sin(angle + 0.1) * (radius + 10)
+    //   ); // Curve back to outer edge
+
+    //   const flameGradient = ctx.createRadialGradient(
+    //     flameTipX,
+    //     flameTipY,
+    //     0,
+    //     flameTipX,
+    //     flameTipY,
+    //     15
+    //   );
+    //   flameGradient.addColorStop(0, "rgba(255, 69, 0, 0.8)"); // Bright orange at center
+    //   flameGradient.addColorStop(1, "rgba(255, 140, 0, 0)"); // Fade to transparent
+
+    //   ctx.fillStyle = flameGradient;
+    //   ctx.fill();
+    // }
+
+    //     // Orb Particles
+    // const particleCount = 3; // Number of particles
+    // for (let i = 0; i < particleCount; i++) {
+    //   const angle = Math.random() * Math.PI * 2; // Random angle
+    //   const distance = radius + 10 + Math.random() * 30; // Distance from the center
+    //   const particleX = x + Math.cos(angle) * distance;
+    //   const particleY = y + Math.sin(angle) * distance;
+    //   const particleSize = Math.random() * 3 + 2; // Random particle size
+    //   const particleOpacity = Math.random() * 0.5 + 0.2; // Random opacity
+
+    //   // Draw the particle
+    //   ctx.beginPath();
+    //   ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+    //   ctx.fillStyle = `rgba(255, 255, 255, ${particleOpacity})`; // White particles with random transparency
+    //   ctx.fill();
+    // }
+  }
+
   // Draw "👑" if it's a king pawn
-  if (isKing) {
+  if (isKing && !proKing) {
     ctx.save(); // Save the current canvas state
     ctx.font = `${radius}px sans-serif`; // Set the font for the crown
     ctx.fillStyle = "gold"; // Golden crown for kings
@@ -128,18 +270,18 @@ function drawPiece(row, col) {
 
   switch (board[row][col]) {
     case 1:
-      drawCustomPawn(row, col, "black");
+      drawCustomPawn(row, col, "black", null, true, null);
       break;
     case 2:
       drawCustomPawn(row, col, "white");
       break;
     case 3:
-      drawCustomPawn(row, col, "black", true);
+      drawCustomPawn(row, col, "black", true, null, true);
       // drawPawn(row, col, "black", true);
 
       break;
     case 4:
-      drawCustomPawn(row, col, "white", true);
+      drawCustomPawn(row, col, "white", true, false, true);
       // drawPawn(row, col, "white", true);
 
       break;
@@ -151,11 +293,11 @@ function drawPiece(row, col) {
 function drawCoord(row, col) {
   ctx.beginPath();
   const text = `(${row},${col})`;
-  const textX = col * gridSize + gridSize / 2; 
-  const textY = row * gridSize + gridSize / 2;   
+  const textX = col * gridSize + gridSize / 2;
+  const textY = row * gridSize + gridSize / 2;
   ctx.font = "12px Arial";
-  ctx.textAlign = "center"; 
-  ctx.textBaseline = "middle"; 
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
   ctx.fillStyle = "black";
   ctx.fillText(text, textX, textY);
 }
@@ -442,30 +584,30 @@ function movePieceAndRemove(fromRow, fromCol, toRow, toCol) {
   updateBoardHightLight();
 
   if (selected && removeMark > 0) {
-    if(board[selected.row][selected.col] == 1) {
+    if (board[selected.row][selected.col] == 1) {
       const blackPawn = scanBlackPawn();
-      if(blackPawn.length > 0) {
+      if (blackPawn.length > 0) {
         readyCombo = true;
         return;
       }
     }
-    if(board[selected.row][selected.col] == 2) {
+    if (board[selected.row][selected.col] == 2) {
       const whiteKing = scanBlackKing();
-      if(whiteKing.length > 0) {
+      if (whiteKing.length > 0) {
         readyCombo = true;
         return;
       }
     }
-    if(board[selected.row][selected.col] == 2) {
+    if (board[selected.row][selected.col] == 2) {
       const whitePawn = scanWhitePawn();
-      if(whitePawn.length > 0) {
+      if (whitePawn.length > 0) {
         readyCombo = true;
         return;
       }
     }
-    if(board[selected.row][selected.col] == 4) {
+    if (board[selected.row][selected.col] == 4) {
       const whiteKing = scanWhiteKing();
-      if(whiteKing.length > 0) {
+      if (whiteKing.length > 0) {
         readyCombo = true;
         return;
       }
@@ -500,7 +642,7 @@ function updateBoardHightLight() {
 }
 
 //#region 4 direction scan
-function scanCaptureTopLeft(index, row, col, mode="normal") {
+function scanCaptureTopLeft(index, row, col, mode = "normal") {
   const rowNext = row - index - 1;
   const colNext = col - index - 1;
 
@@ -509,9 +651,12 @@ function scanCaptureTopLeft(index, row, col, mode="normal") {
 
   if (mode === "king") {
     //white king
-    if(board[row][col] === 4) {
-      if ((row - index) >= 0 && (col - index) >= 0) {
-        if (board[row - index][col - index] === 1 || board[row - index][col - index] === 3) {
+    if (board[row][col] === 4) {
+      if (row - index >= 0 && col - index >= 0) {
+        if (
+          board[row - index][col - index] === 1 ||
+          board[row - index][col - index] === 3
+        ) {
           const checkPoint = {
             row: row - index,
             col: col - index,
@@ -542,10 +687,13 @@ function scanCaptureTopLeft(index, row, col, mode="normal") {
       }
     }
     //black king
-    if(board[row][col] === 3) {
-      console.log(`black king topleft`)
-      if ((row - index) >= 0 && (col - index) >= 0) {
-        if (board[row - index][col - index] === 2 || board[row - index][col - index] === 4) {
+    if (board[row][col] === 3) {
+      console.log(`black king topleft`);
+      if (row - index >= 0 && col - index >= 0) {
+        if (
+          board[row - index][col - index] === 2 ||
+          board[row - index][col - index] === 4
+        ) {
           const checkPoint = {
             row: row - index,
             col: col - index,
@@ -577,7 +725,7 @@ function scanCaptureTopLeft(index, row, col, mode="normal") {
     }
   }
 
-  if(mode === "normal") {
+  if (mode === "normal") {
     if (
       board[row][col] === 2 &&
       (row - index || col - index) >= 0 &&
@@ -604,21 +752,23 @@ function scanCaptureTopLeft(index, row, col, mode="normal") {
       return null;
     }
   }
-
 }
 
-function scanCaptureTopRight(index, row, col, mode="normal") {
-  const rowNext = (row - index) - 1;
-  const colNext = (col + index) + 1;
+function scanCaptureTopRight(index, row, col, mode = "normal") {
+  const rowNext = row - index - 1;
+  const colNext = col + index + 1;
 
-  const rowBefore = (row - index) + 1;
-  const colBefore = (col + index) - 1;
+  const rowBefore = row - index + 1;
+  const colBefore = col + index - 1;
 
   if (mode === "king") {
     //white king
-    if(board[row][col] === 4) {
-      if ((row - index) >= 0 && (col + index) <= 7) {
-        if (board[row - index][col + index] === 1 || board[row - index][col + index] === 3) {
+    if (board[row][col] === 4) {
+      if (row - index >= 0 && col + index <= 7) {
+        if (
+          board[row - index][col + index] === 1 ||
+          board[row - index][col + index] === 3
+        ) {
           const checkPoint = {
             row: row - index,
             col: col + index,
@@ -650,9 +800,12 @@ function scanCaptureTopRight(index, row, col, mode="normal") {
     }
 
     //black king
-    if(board[row][col] === 3) {
-      if ((row - index) >= 0 && (col + index) <= 7) {
-        if (board[row - index][col + index] === 2 || board[row - index][col + index] === 4) {
+    if (board[row][col] === 3) {
+      if (row - index >= 0 && col + index <= 7) {
+        if (
+          board[row - index][col + index] === 2 ||
+          board[row - index][col + index] === 4
+        ) {
           const checkPoint = {
             row: row - index,
             col: col + index,
@@ -680,13 +833,11 @@ function scanCaptureTopRight(index, row, col, mode="normal") {
             return captureInfo;
           }
         }
-          
       }
     }
-
   }
 
-  if(mode === "normal") {
+  if (mode === "normal") {
     if (
       board[row][col] === 2 &&
       (row - index || col + index) >= 0 &&
@@ -713,17 +864,15 @@ function scanCaptureTopRight(index, row, col, mode="normal") {
       }
       return null;
     }
-
   }
-
 }
 
-function scanCaptureBottomLeft(index, row, col, mode="normal") {
-  const rowNext = (row + index) + 1;
-  const colNext = (col - index) - 1;
+function scanCaptureBottomLeft(index, row, col, mode = "normal") {
+  const rowNext = row + index + 1;
+  const colNext = col - index - 1;
 
-  const rowBefore = (row + index) - 1;
-  const colBefore = (col - index) + 1;
+  const rowBefore = row + index - 1;
+  const colBefore = col - index + 1;
 
   if (mode === "king" && board[row][col] === 4) {
     //white king
@@ -817,7 +966,7 @@ function scanCaptureBottomLeft(index, row, col, mode="normal") {
   }
 }
 
-function scanCaptureBottomRight(index, row, col, mode="normal") {
+function scanCaptureBottomRight(index, row, col, mode = "normal") {
   const rowNext = row + index + 1;
   const colNext = col + index + 1;
 
@@ -826,7 +975,7 @@ function scanCaptureBottomRight(index, row, col, mode="normal") {
 
   if (mode === "king") {
     //white king
-    if(board[row][col] === 4) {
+    if (board[row][col] === 4) {
       if (
         (row + index || col + index) >= 0 &&
         row + index <= 7 &&
@@ -844,7 +993,7 @@ function scanCaptureBottomRight(index, row, col, mode="normal") {
             status: "waiting",
             delta: Math.abs(row + index - row),
           };
-  
+
           let viralPawn = board[row + index][col + index];
           let sumAll = 0;
           for (let index = 0; index < checkPoint?.delta; index++) {
@@ -872,10 +1021,12 @@ function scanCaptureBottomRight(index, row, col, mode="normal") {
     }
 
     //black king
-    if(board[row][col] === 3) {
-      if ( (row + index || col + index) >= 0 && 
-      row + index <= 7 && 
-      (row + index || col + index) <= 7) {
+    if (board[row][col] === 3) {
+      if (
+        (row + index || col + index) >= 0 &&
+        row + index <= 7 &&
+        (row + index || col + index) <= 7
+      ) {
         //detect opposite player
         if (
           board[row + index][col + index] === 2 ||
@@ -888,7 +1039,7 @@ function scanCaptureBottomRight(index, row, col, mode="normal") {
             status: "waiting",
             delta: Math.abs(row + index - row),
           };
-  
+
           let viralPawn = board[row + index][col + index];
           let sumAll = 0;
           for (let index = 0; index < checkPoint?.delta; index++) {
@@ -956,7 +1107,6 @@ function scanCaptureBottomRight(index, row, col, mode="normal") {
       return null;
     }
   }
-
 }
 //#endregion
 
@@ -1016,7 +1166,7 @@ function scanWhiteKing() {
           const topRight = scanCaptureTopRight(index, row, col, "king");
           const bottomRight = scanCaptureBottomRight(index, row, col, "king");
           const bottomLeft = scanCaptureBottomLeft(index, row, col, "king");
-          
+
           if (topLeft) {
             scanResult.push(topLeft);
           }
@@ -1047,7 +1197,7 @@ function scanBlackKing() {
           const topRight = scanCaptureTopRight(index, row, col, "king");
           const bottomRight = scanCaptureBottomRight(index, row, col, "king");
           const bottomLeft = scanCaptureBottomLeft(index, row, col, "king");
-          
+
           if (topLeft) {
             scanResult.push(topLeft);
           }
@@ -1059,7 +1209,7 @@ function scanBlackKing() {
           }
           if (bottomLeft) {
             scanResult.push(bottomLeft);
-          }       
+          }
         }
       }
     }
@@ -1082,7 +1232,7 @@ function handleClick(event) {
     const isValid = isValidMove(selected.row, selected.col, row, col);
     if (isValid) {
       movePieceAndRemove(selected.row, selected.col, row, col);
-      if(readyCombo) {
+      if (readyCombo) {
         return;
       }
       changePlayerTurn();
