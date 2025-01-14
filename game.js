@@ -199,56 +199,6 @@ function drawCustomPawn(
       ctx.lineJoin = "round"; // Rounded corners for a smoother flame-like effect
       ctx.stroke();
     }
-
-    // Fire-like layer (dynamic flame effect)
-    // for (let i = 0; i < 20; i++) {
-    //   const angle = (Math.PI * 2 * i) / 20; // Spread flames around the circle
-    //   const flameLength = radius + 15 + Math.random() * 10; // Vary flame height
-    //   const flameTipX = x + Math.cos(angle) * flameLength;
-    //   const flameTipY = y + Math.sin(angle) * flameLength;
-
-    //   ctx.beginPath();
-    //   ctx.moveTo(
-    //     x + Math.cos(angle) * (radius + 10),
-    //     y + Math.sin(angle) * (radius + 10)
-    //   ); // Start at outer edge
-    //   ctx.lineTo(flameTipX, flameTipY); // Move to flame tip
-    //   ctx.lineTo(
-    //     x + Math.cos(angle + 0.1) * (radius + 10),
-    //     y + Math.sin(angle + 0.1) * (radius + 10)
-    //   ); // Curve back to outer edge
-
-    //   const flameGradient = ctx.createRadialGradient(
-    //     flameTipX,
-    //     flameTipY,
-    //     0,
-    //     flameTipX,
-    //     flameTipY,
-    //     15
-    //   );
-    //   flameGradient.addColorStop(0, "rgba(255, 69, 0, 0.8)"); // Bright orange at center
-    //   flameGradient.addColorStop(1, "rgba(255, 140, 0, 0)"); // Fade to transparent
-
-    //   ctx.fillStyle = flameGradient;
-    //   ctx.fill();
-    // }
-
-    //     // Orb Particles
-    // const particleCount = 3; // Number of particles
-    // for (let i = 0; i < particleCount; i++) {
-    //   const angle = Math.random() * Math.PI * 2; // Random angle
-    //   const distance = radius + 10 + Math.random() * 30; // Distance from the center
-    //   const particleX = x + Math.cos(angle) * distance;
-    //   const particleY = y + Math.sin(angle) * distance;
-    //   const particleSize = Math.random() * 3 + 2; // Random particle size
-    //   const particleOpacity = Math.random() * 0.5 + 0.2; // Random opacity
-
-    //   // Draw the particle
-    //   ctx.beginPath();
-    //   ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
-    //   ctx.fillStyle = `rgba(255, 255, 255, ${particleOpacity})`; // White particles with random transparency
-    //   ctx.fill();
-    // }
   }
 
   // Draw "👑" if it's a king pawn
