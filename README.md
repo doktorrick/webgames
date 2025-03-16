@@ -9,7 +9,7 @@ This table tracks student progress across six teaching sessions ("Rounds") and o
 | Index | Student Name       | Round 1            | Round 2       | Round 3       | Round 4       | Round 5                         | Round 6                  |
 |-------|--------------------|--------------------|---------------|---------------|---------------|---------------------------------|--------------------------|
 |       | **Course Topics**  | Basic JavaScript   | Database      | Canvas        | Canvas II     | Physics Simulations with Canvas | Multiplayer With Canvas  |
-| 1     | Ryuji              | Completed           | Completed       | waiting       | waiting       | waiting                         | waiting                  |
+| 1     | Ryuji              | Completed           | Completed       | Completed       | Completed       | Completed                         | Completed                  |
 
 
 ## Prerequisite 
