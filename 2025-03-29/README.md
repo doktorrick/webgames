@@ -8,7 +8,7 @@ Welcome to the class! Please add your name and the current date to the table bel
 
 | Seat  | Name           | Date (YYYY-MM-DD) |
 |-------|----------------|--------------------|
-| 1A    | [Your Name]    | 2025-03-29        |
+| 1A    | [Ryuji]    | 2025-03-29        |
 | 1B    | [Your Name]    | 2025-03-29        |
 | 1C    | [Your Name]    | 2025-03-29        |
 | 2A    | [Your Name]    | 2025-03-29        |
