@@ -11,6 +11,30 @@ This table tracks student progress across six teaching sessions ("Rounds") and o
 |       | **Course Topics**  | Basic JavaScript   | Database      | Canvas        | Canvas II     | Physics Simulations with Canvas | Multiplayer With Canvas  |
 | 1     | Ryuji              | Completed           | Completed       | Completed       | Completed       | Completed                         | Completed                  |
 
+-----
+
+# Babylon.js Course Schedule
+
+## Course Topics & Schedule
+- **2025-01-25:** 
+- **2025-01-26:** 
+- **2025-02-01:** 
+- **2025-02-09:** 
+- **2025-02-16:** 
+- **2025-03-01:** 
+- **2025-03-09:** 
+
+## Student Progress
+
+### [Ryuji]
+- **2025-01-25:** Completed  
+- **2025-01-26:** Completed  
+- **2025-02-01:** Completed  
+- **2025-02-09:** Completed  
+- **2025-02-16:** Completed  
+- **2025-03-01:** Completed  
+- **2025-03-09:** Completed  
+
 
 ## Prerequisite 
 
