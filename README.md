@@ -24,6 +24,9 @@ This table tracks student progress across six teaching sessions ("Rounds") and o
 - **2025-03-01:** 
 - **2025-03-09:** 
 - **2025-03-29:** 
+- **2025-03-30:** 
+- **2025-04-12:** 
+
 
 ## Student Progress
 
@@ -36,7 +39,8 @@ This table tracks student progress across six teaching sessions ("Rounds") and o
 - **2025-03-01:** Completed  
 - **2025-03-09:** Completed  
 - **2025-03-29:** Completed  
-
+- **2025-03-30:** Completed  
+- **2025-04-12:** 
 
 ## Prerequisite 
 
