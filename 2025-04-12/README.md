@@ -8,15 +8,15 @@ Welcome to the class! Please add your name and the current date to the table bel
 
 | Seat  | Name           | Date (YYYY-MM-DD) |
 |-------|----------------|--------------------|
-| 1A    | [Ryuji]    | 2025-03-30        |
-| 1B    | [Your Name]    | 2025-03-30        |
-| 1C    | [Your Name]    | 2025-03-30        |
-| 2A    | [Your Name]    | 2025-03-30        |
-| 2B    | [Your Name]    | 2025-03-30        |
-| 2C    | [Your Name]    | 2025-03-30        |
-| 3A    | [Your Name]    | 2025-03-30        |
-| 3B    | [Your Name]    | 2025-03-30        |
-| 3C    | [Your Name]    | 2025-03-30        |
+| 1A    | [Your Name]    | 2025-04-12        |
+| 1B    | [Your Name]    | 2025-04-12        |
+| 1C    | [Your Name]    | 2025-04-12        |
+| 2A    | [Your Name]    | 2025-04-12        |
+| 2B    | [Your Name]    | 2025-04-12        |
+| 2C    | [Your Name]    | 2025-04-12        |
+| 3A    | [Your Name]    | 2025-04-12        |
+| 3B    | [Your Name]    | 2025-04-12        |
+| 3C    | [Your Name]    | 2025-04-12        |
 
 ### How to Check In
 1. Fork this repository.
@@ -27,4 +27,4 @@ Welcome to the class! Please add your name and the current date to the table bel
 ### Example
 If you're in seat 2B, change:
 ```markdown
-| 2B    | [Your Name] | 2025-03-30 |
+| 2B    | [Your Name] | 2025-04-12 |
