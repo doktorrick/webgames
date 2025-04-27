@@ -8,7 +8,7 @@ Welcome! Please add your name and today's date to the table below by submitting 
 
 | Seat | Name           | Date (YYYY-MM-DD) |
 |------|----------------|-------------------|
-| 1A   | [Your Name]    | 2025-04-27        |
+| 1A   | [Ryuji]    | 2025-04-27        |
 | 1B   | [Your Name]    | 2025-04-27        |
 | 1C   | [Your Name]    | 2025-04-27        |
 | 2A   | [Your Name]    | 2025-04-27        |
