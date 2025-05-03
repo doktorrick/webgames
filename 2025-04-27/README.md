@@ -8,17 +8,6 @@ Welcome! Please add your name and today's date to the table below by submitting 
 
 | Seat | Name           | Date (YYYY-MM-DD) |
 |------|----------------|-------------------|
-<<<<<<< HEAD
-| 1A   | [Your Name]    | 2025-05-03        |
-| 1B   | [Your Name]    | 2025-05-03        |
-| 1C   | [Your Name]    | 2025-05-03        |
-| 2A   | [Your Name]    | 2025-05-03        |
-| 2B   | [Your Name]    | 2025-05-03        |
-| 2C   | [Your Name]    | 2025-05-03        |
-| 3A   | [Your Name]    | 2025-05-03        |
-| 3B   | [Your Name]    | 2025-05-03        |
-| 3C   | [Your Name]    | 2025-05-03        |
-=======
 | 1A   | [Ryuji]    | 2025-04-27        |
 | 1B   | [Your Name]    | 2025-04-27        |
 | 1C   | [Your Name]    | 2025-04-27        |
@@ -28,7 +17,6 @@ Welcome! Please add your name and today's date to the table below by submitting 
 | 3A   | [Your Name]    | 2025-04-27        |
 | 3B   | [Your Name]    | 2025-04-27        |
 | 3C   | [Your Name]    | 2025-04-27        |
->>>>>>> 5c4024f222a72d02b3366761216d6ede6e656d95
 
 ### How to Participate
 1. Fork this repository.
