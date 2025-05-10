@@ -4,19 +4,19 @@ Welcome! Please add your name and today's date to the table below by submitting 
 
 ## Participation Table
 
-### คอร์สเรียนเว็บ 3D Game Online
+### คอร์สเรียนเว็บ 3D Game Online (1/2)
 
 | Seat | Name           | Date (YYYY-MM-DD) |
 |------|----------------|-------------------|
-| 1A   | [Your Name]    | 2025-04-27        |
-| 1B   | [Your Name]    | 2025-04-27        |
-| 1C   | [Your Name]    | 2025-04-27        |
-| 2A   | [Your Name]    | 2025-04-27        |
-| 2B   | [Your Name]    | 2025-04-27        |
-| 2C   | [Your Name]    | 2025-04-27        |
-| 3A   | [Your Name]    | 2025-04-27        |
-| 3B   | [Your Name]    | 2025-04-27        |
-| 3C   | [Your Name]    | 2025-04-27        |
+| 1A   | [Your Name]    | 2025-05-10        |
+| 1B   | [Your Name]    | 2025-05-10        |
+| 1C   | [Your Name]    | 2025-05-10        |
+| 2A   | [Your Name]    | 2025-05-10        |
+| 2B   | [Your Name]    | 2025-05-10        |
+| 2C   | [Your Name]    | 2025-05-10        |
+| 3A   | [Your Name]    | 2025-05-10        |
+| 3B   | [Your Name]    | 2025-05-10        |
+| 3C   | [Your Name]    | 2025-05-10        |
 
 ### How to Participate
 1. Fork this repository.
@@ -27,4 +27,4 @@ Welcome! Please add your name and today's date to the table below by submitting 
 ### Example
 If you're in seat 2B, change:
 ```markdown
-| 2B   | [Your Name] | 2025-04-27 |
+| 2B   | [Your Name] | 2025-05-10 |
