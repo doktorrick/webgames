@@ -8,15 +8,15 @@ Welcome! Please add your name and today's date to the table below by submitting 
 
 | Seat | Name           | Date (YYYY-MM-DD) |
 |------|----------------|-------------------|
-| 1A   | [Your Name]    | 2025-06-07        |
-| 1B   | [Your Name]    | 2025-06-07        |
-| 1C   | [Your Name]    | 2025-06-07        |
-| 2A   | [Your Name]    | 2025-06-07        |
-| 2B   | [Your Name]    | 2025-06-07        |
-| 2C   | [Your Name]    | 2025-06-07        |
-| 3A   | [Your Name]    | 2025-06-07        |
-| 3B   | [Your Name]    | 2025-06-07        |
-| 3C   | [Your Name]    | 2025-06-07       |
+| 1A   | [Ryuji 1]    | 2025-05-18        |
+| 1B   | [Your Name]    | 2025-05-18        |
+| 1C   | [Your Name]    | 2025-05-18        |
+| 2A   | [Your Name]    | 2025-05-18        |
+| 2B   | [Your Name]    | 2025-05-18        |
+| 2C   | [Your Name]    | 2025-05-18        |
+| 3A   | [Your Name]    | 2025-05-18        |
+| 3B   | [Your Name]    | 2025-05-18        |
+| 3C   | [Your Name]    | 2025-05-18       |
 
 ### How to Participate
 1. Fork this repository.
@@ -27,4 +27,4 @@ Welcome! Please add your name and today's date to the table below by submitting 
 ### Example
 If you're in seat 2B, change:
 ```markdown
-| 2B   | [Your Name] | 2025-06-07 |
+| 2B   | [Your Name] | 2025-05-18 |
